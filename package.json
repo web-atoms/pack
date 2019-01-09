@@ -1,0 +1,27 @@
+{
+  "name": "@web-atoms/pack",
+  "version": "1.0.0",
+  "description": "Web Atoms Pack script to combine multple Web Atoms Modules",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-atoms/pack.git"
+  },
+  "keywords": [
+    "web",
+    "atoms",
+    "pack"
+  ],
+  "author": "Akash Kava",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/web-atoms/pack/issues"
+  },
+  "homepage": "https://github.com/web-atoms/pack#readme",
+  "dependencies": {
+    "@types/node": "^10.12.18"
+  }
+}

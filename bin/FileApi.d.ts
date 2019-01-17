@@ -9,7 +9,7 @@ export interface IFileInfo {
     isDirectory?: boolean;
     length?: number;
 }
-export default class FileApi {
+export declare class FileApi {
     static instance: FileApi;
     readString(path: string): Promise<string>;
     writeString(path: string, data: string): Promise<void>;
@@ -19,3 +19,5 @@ export default class FileApi {
     readDir(folder: string | IFileInfo, filter?: (file: IFileInfo) => boolean, nest?: boolean): Promise<IFileInfo[]>;
     private flat(content);
 }
+declare const fileApi: FileApi;
+export default fileApi;

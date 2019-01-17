@@ -55,9 +55,9 @@ class FileApi {
         });
     }
     stat(file) {
-        const fpath = typeof file === "string" ? file : file.path;
+        const filePath = typeof file === "string" ? file : file.path;
         return new Promise((resolve, reject) => {
-            fs_1.stat(fpath, (error, result) => {
+            fs_1.stat(filePath, (error, result) => {
                 if (error) {
                     reject(error);
                     return;
@@ -68,17 +68,17 @@ class FileApi {
     }
     readDir(folder, filter = (file) => true, nest = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            const fpath = typeof folder === "string" ? folder : folder.path;
+            const filePath = typeof folder === "string" ? folder : folder.path;
             // read file names
             const result = yield new Promise((resolve, reject) => {
-                fs_1.readdir(fpath, (error, files) => {
+                fs_1.readdir(filePath, (error, files) => {
                     if (error) {
                         reject(error);
                         return;
                     }
                     resolve(files.map((s) => ({
                         name: s,
-                        path: path_1.join(fpath, s)
+                        path: path_1.join(filePath, s)
                     })));
                 });
             });
@@ -107,5 +107,7 @@ class FileApi {
     }
 }
 FileApi.instance = new FileApi();
-exports.default = FileApi;
+exports.FileApi = FileApi;
+const fileApi = FileApi.instance;
+exports.default = fileApi;
 //# sourceMappingURL=FileApi.js.map

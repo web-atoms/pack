@@ -36,7 +36,7 @@ export default class Packer {
         }
 
         const tasks = packFiles.map( async (file) => {
-            const packer = new FilePacker(file, this.package);
+            const packer = new FilePacker(".", file, this.package);
             await packer.pack();
         });
         await Promise.all(tasks);

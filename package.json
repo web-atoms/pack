@@ -23,5 +23,12 @@
   "homepage": "https://github.com/web-atoms/pack#readme",
   "dependencies": {
     "@types/node": "^10.12.18"
+  },
+  "devDependencies": {
+    "colors": "^1.3.3",
+    "fs": "0.0.1-security",
+    "jsdom": "^13.1.0",
+    "test-dom": "^1.0.0",
+    "web-atoms-core": "^1.0.589"
   }
 }

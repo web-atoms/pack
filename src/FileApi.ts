@@ -1,4 +1,4 @@
-import { access, constants, fstat, readdir, readFile, stat, Stats, writeFile } from "fs";
+import { access, constants, fstat, readdir, readFile, stat, Stats, writeFile, appendFile } from "fs";
 import { join, parse } from "path";
 
 export interface IFileInfo {
@@ -24,6 +24,18 @@ export class FileApi {
                 }
                 resolve(data);
             });
+        });
+    }
+
+    public appendString(path: string, data: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            appendFile(path, data, "utf8", (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve();
+            } );
         });
     }
 

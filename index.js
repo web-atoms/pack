@@ -1,4 +1,4 @@
-var Packer = require("./bin/Packer").default;
+var Packer = require("./dist/Packer").default;
 
 var packer = new Packer();
 packer.run(process.argv)

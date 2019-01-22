@@ -6,6 +6,6 @@ packer.run(process.argv)
         process.exit(0);
     })
     .catch(function(e) {
-        console.error(e);
+        console.error(e.stack ? e.stack : e);
         process.exit(1);
     });

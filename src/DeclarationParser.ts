@@ -1,4 +1,33 @@
+import { parseScript } from "esprima";
+import { ArrowFunctionExpression, BaseExpression,
+    Expression, FunctionDeclaration, FunctionExpression,
+    Identifier, MemberExpression, Node, ReturnStatement } from "estree";
+import DefineVisitor from "./parser/DefineVisitor";
+
+export interface IPackageInfo {
+    name: string;
+    path: string;
+    fullPath: string;
+}
 export default class DeclarationParser {
+
+    public static parsePackage(name: string): IPackageInfo {
+        let path: string;
+        name = name.split("\\").join("/");
+        const tokens = name.split("/");
+        if (tokens[0].startsWith("@")) {
+            name = [tokens[0], tokens[1]].join("/");
+            path = tokens.filter((s, i) => i > 1).join("/");
+        } else {
+            name = tokens[0];
+            path = tokens.filter((s, i) => i > 0).join("/");
+        }
+        return {
+            name,
+            path,
+            fullPath: path ? `${name}/${path}` : name
+        };
+    }
 
     public static packageName(name: string): string {
         const tokens = name.split("/", 3);
@@ -21,12 +50,13 @@ export default class DeclarationParser {
                 dependencies.push(s);
             }
         }
-
         return dependencies;
     }
 
     public static resolveRelativePath(name: string, currentPackage: string): string {
 
+        // tslint:disable-next-line:no-debugger
+        debugger;
         if (name.charAt(0) !== ".") {
             return name;
         }

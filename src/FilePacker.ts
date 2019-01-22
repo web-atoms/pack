@@ -2,6 +2,7 @@ import { join, parse } from "path";
 import DeclarationParser from "./DeclarationParser";
 import fileApi, { FileApi } from "./FileApi";
 import IPackage from "./IPackage";
+import DefineVisitor from "./parser/DefineVisitor";
 
 export default class FilePacker {
 
@@ -28,12 +29,7 @@ export default class FilePacker {
         await this.writeFile(this.file, moduleName);
 
         const outputFile = this.file + ".pack.js";
-        await fileApi.writeString(outputFile, `
-        UMD.packageResolver = function(pkg) {
-            pkg.url = "/node_modules/" + pkg.name + "/";
-            return pkg;
-        };
-    `);
+        await fileApi.writeString(outputFile, ``);
         for (const iterator of this.header) {
             await fileApi.appendString(outputFile, iterator + "\r\n");
         }
@@ -44,45 +40,49 @@ export default class FilePacker {
 
     public async writeFile(f: string, name: string): Promise<void> {
 
+        this.done[f] = true;
+        // console.dir({f , name});
         if (name === "reflect-metadata") {
             f = f + "/Reflect";
         }
 
-        this.done[f] = true;
+        f = f.split("\\").join("/");
 
-        const filePath = parse(f);
+        name = name.split("\\").join("/");
 
-        const decFile = f + ".d.ts";
+        const fileContent = await fileApi.readString(f + ".js");
+
+        const dependencies = DefineVisitor.parse(fileContent);
 
         // if there is no declaration file..
-        if (await fileApi.exists(decFile)) {
+        if (dependencies && dependencies.length > 0) {
 
             const packageName = DeclarationParser.packageName(name);
 
-            const d = (await FileApi.instance.readString(decFile));
-            const ds = DeclarationParser.parseDependencies(d)
+            // const d = (await FileApi.instance.readString(decFile));
+            const ds = dependencies
                 .map((s) => s.startsWith(".") ? DeclarationParser.resolveRelativePath(s, name) : s)
-                .map((s) => s.startsWith(".") ?
-                    [
-                        this.packageConfig.name === packageName ?
-                        join(this.root, s) :
-                        join(this.root + "//node_modules//" + packageName, s),
-                        s
-                    ] :
-                    [ this.root + "//node_modules/" + s, s]);
+                .map((s) => DeclarationParser.parsePackage(s))
+                .map((s) =>
+                    ({
+                        path: this.packageConfig.name === s.name ?
+                        join(this.root, s.path) :
+                        join(this.root + "//node_modules//" + s.name, s.path),
+                        module: s
+                    }));
 
             for (const iterator of ds) {
-                if (this.done[iterator[0]]) {
+                if (this.done[iterator.path]) {
                     continue;
                 }
 
-                await this.writeFile(iterator[0], iterator[1]);
+                console.dir({ ... iterator, packageName, name });
+
+                await this.writeFile(iterator.path, iterator.module.fullPath);
             }
         }
 
         // write file now...
-        const fileContent = await fileApi.readString(f + ".js");
-
         const header = `AmdLoader.instance.get("${name}").package.manifestLoaded = true;`;
 
         this.header.push(header);
@@ -93,7 +93,8 @@ export default class FilePacker {
         (function(module) {
             module.loader = new Promise(function(resolve, reject) {
                 AmdLoader.current = module;
-                AmdLoader.instance.define();
+                if (AmdLoader.instance.define)
+                    AmdLoader.instance.define();
                 module.ready = true;
                 if (module.exportVar) {
                     module.exports = AmdLoader.globalVar[module.exportVar];

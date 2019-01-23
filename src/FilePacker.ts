@@ -43,6 +43,11 @@ export default class FilePacker {
             [${ packages.map((s) => JSON.stringify(s)).join(",") }],
             [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
 `);
+
+        const umd = await fileApi.readString(`${this.root}/node_modules/web-atoms-amd-loader/umd.js`);
+
+        await fileApi.appendString(outputFile, umd + "\r\n");
+
         for (const iterator of this.content) {
             await fileApi.appendString(outputFile, iterator + "\r\n");
         }

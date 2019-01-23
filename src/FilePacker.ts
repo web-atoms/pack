@@ -55,8 +55,6 @@ export default class FilePacker {
 
         if (dependencies && dependencies.length > 0) {
 
-            const packageName = DeclarationParser.packageName(name);
-
             const ds = dependencies
                 .map((s) => s.startsWith(".") ? DeclarationParser.resolveRelativePath(s, name) : s)
                 .map((s) => DeclarationParser.parsePackage(s))

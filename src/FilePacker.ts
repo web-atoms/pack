@@ -29,10 +29,9 @@ export default class FilePacker {
         await this.writeFile(this.file, moduleName);
 
         const outputFile = this.file + ".pack.js";
-        await fileApi.writeString(outputFile, ``);
-        for (const iterator of this.header) {
-            await fileApi.appendString(outputFile, iterator + "\r\n");
-        }
+        await fileApi.writeString(outputFile,
+            `AmdLoader.instance.register(${ this.header.map((s) => JSON.stringify(s)).join(",") });
+`);
         for (const iterator of this.content) {
             await fileApi.appendString(outputFile, iterator + "\r\n");
         }
@@ -73,6 +72,8 @@ export default class FilePacker {
                 await this.writeFile(iterator.path, iterator.module.fullPath);
             }
         }
+
+        this.header.push(name);
 
         const content = `${fileContent}
 AmdLoader.instance.register("${name}");

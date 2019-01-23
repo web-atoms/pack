@@ -41,7 +41,6 @@ export default class FilePacker {
     public async writeFile(f: string, name: string): Promise<void> {
 
         this.done[f] = true;
-        // console.dir({f , name});
         if (name === "reflect-metadata") {
             f = f + "/Reflect";
         }
@@ -54,12 +53,10 @@ export default class FilePacker {
 
         const dependencies = DefineVisitor.parse(fileContent);
 
-        // if there is no declaration file..
         if (dependencies && dependencies.length > 0) {
 
             const packageName = DeclarationParser.packageName(name);
 
-            // const d = (await FileApi.instance.readString(decFile));
             const ds = dependencies
                 .map((s) => s.startsWith(".") ? DeclarationParser.resolveRelativePath(s, name) : s)
                 .map((s) => DeclarationParser.parsePackage(s))
@@ -75,41 +72,14 @@ export default class FilePacker {
                 if (this.done[iterator.path]) {
                     continue;
                 }
-
-                console.dir({ ... iterator, packageName, name });
-
                 await this.writeFile(iterator.path, iterator.module.fullPath);
             }
         }
 
-        // write file now...
-        const header = `AmdLoader.instance.get("${name}").package.manifestLoaded = true;`;
-
-        this.header.push(header);
-
-        const content = `
-        AmdLoader.current = AmdLoader.instance.get("${name}");
-        ${fileContent}
-        (function(module) {
-            module.loader = new Promise(function(resolve, reject) {
-                AmdLoader.current = module;
-                if (AmdLoader.instance.define)
-                    AmdLoader.instance.define();
-                module.ready = true;
-                if (module.exportVar) {
-                    module.exports = AmdLoader.globalVar[module.exportVar];
-                }
-                module.onReady(function() {
-                    resolve(module.getExports());
-                });
-                module.finish();
-            });
-        })(AmdLoader.instance.get("${name}"));
+        const content = `${fileContent}
+AmdLoader.instance.register("${name}");
 `;
-
         this.content.push(content);
-        // this.content.push(name);
-        // this.content.push(f);
     }
 
 }

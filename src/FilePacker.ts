@@ -76,7 +76,7 @@ export default class FilePacker {
         this.header.push(name);
 
         const content = `${fileContent}
-AmdLoader.instance.register("${name}");
+AmdLoader.instance.setup("${name}");
 `;
         this.content.push(content);
     }

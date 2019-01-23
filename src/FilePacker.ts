@@ -28,9 +28,20 @@ export default class FilePacker {
 
         await this.writeFile(this.file, moduleName);
 
+        // packages
+        const packages: string[] = [];
+        for (const iterator of this.header) {
+            const pn = DeclarationParser.parsePackage(iterator);
+            if (!packages.find( (n) => n === pn.name)) {
+                packages.push(pn.name);
+            }
+        }
+
         const outputFile = this.file + ".pack.js";
-        await fileApi.writeString(outputFile,
-            `AmdLoader.instance.register(${ this.header.map((s) => JSON.stringify(s)).join(",") });
+        await fileApi.writeString(outputFile, `
+        AmdLoader.instance.register(
+            [${ packages.map((s) => JSON.stringify(s)).join(",") }],
+            [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
 `);
         for (const iterator of this.content) {
             await fileApi.appendString(outputFile, iterator + "\r\n");

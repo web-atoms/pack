@@ -1,13 +1,12 @@
-import { parseScript } from "esprima";
+import { parseScript, Program } from "esprima";
 import { CallExpression, Identifier, Node } from "estree";
 import TreeVisitor from "./TreeVisitor";
 
 export default class DefineVisitor extends TreeVisitor {
 
-    public static parse(code: string): string[] {
-        const tree = parseScript(code, { tolerant: true });
+    public static parse(tree: Node): string[] {
         const d = new DefineVisitor(tree);
-        return d.define();
+        return  d.define();
     }
 
     private dependencies: string[] = null;

@@ -1,4 +1,6 @@
+import { builders } from "ast-types";
 import { join, parse } from "path";
+import * as recast from "recast";
 import DeclarationParser from "./DeclarationParser";
 import fileApi, { FileApi } from "./FileApi";
 import IPackage from "./IPackage";
@@ -6,13 +8,15 @@ import DefineVisitor from "./parser/DefineVisitor";
 
 export default class FilePacker {
 
-    public content: string[] = [];
+    public content: any[] = [];
 
     public header: string[] = [];
 
     public dependencies: string[] = [];
 
     public done: { [key: string]: boolean } = {};
+
+    public sourceNodes: any[] = [];
 
     constructor(
         public root: string,
@@ -41,16 +45,38 @@ export default class FilePacker {
 
         const umd = await fileApi.readString(`${this.root}/node_modules/web-atoms-amd-loader/umd.js`);
 
-        await fileApi.writeString(outputFile, "");
-        await fileApi.appendString(outputFile, umd + "\r\n");
-        await fileApi.appendString(outputFile, `
+        this.sourceNodes.push(recast.parse(umd, { sourceFileName: "./node_modules/web-atoms-amd-loader/umd.js" }));
+
+        this.sourceNodes.push(recast.parse(`
         AmdLoader.instance.register(
             [${ packages.map((s) => JSON.stringify(s)).join(",") }],
             [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
-`);
+`));
+        // for (const iterator of this.content) {
+        //     await fileApi.appendString(outputFile, iterator + "\r\n");
+        // }
+
         for (const iterator of this.content) {
-            await fileApi.appendString(outputFile, iterator + "\r\n");
+            this.sourceNodes.push(iterator);
         }
+
+        // now lets do the magic !!
+
+        const list = [];
+        for (const iterator of this.sourceNodes) {
+            for (const body of iterator.program.body) {
+                list.push(body);
+            }
+        }
+
+        const code = builders.program(list);
+
+        const result = recast.print(code, { sourceMapName: `${outputFile}.map.json` });
+
+        await fileApi.writeString(outputFile, `${result.code}
+//# sourceMappingURL=${outputFile}.map.json
+`);
+        await fileApi.writeString(outputFile + ".map.json", JSON.stringify(result.map));
     }
 
     public async writeFile(f: string, name: string): Promise<void> {
@@ -66,7 +92,9 @@ export default class FilePacker {
 
         const fileContent = await fileApi.readString(f + ".js");
 
-        const dependencies = DefineVisitor.parse(fileContent);
+        const ast = recast.parse(fileContent, { sourceFileName: name + ".js" });
+
+        const dependencies = DefineVisitor.parse(ast.program.body);
 
         if (dependencies && dependencies.length > 0) {
 
@@ -91,10 +119,15 @@ export default class FilePacker {
 
         this.header.push(name);
 
-        const content = `${fileContent}
-AmdLoader.instance.setup("${name}");
-`;
-        this.content.push(content);
+        this.content.push(ast);
+        this.content.push(recast.parse(`
+    AmdLoader.instance.setup("${name}")
+`));
+
+//         const content = `${fileContent}
+// AmdLoader.instance.setup("${name}");
+// `;
+//         this.content.push(content);
     }
 
 }

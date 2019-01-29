@@ -24,9 +24,9 @@ export default class DefineTest extends TestItem {
 
     @Test
     public test(): void {
-        const d = DefineVisitor.parse(script);
+        // const d = DefineVisitor.parse(script);
 
-        console.dir(d, { depth: 10 });
+        // console.dir(d, { depth: 10 });
     }
 
 }

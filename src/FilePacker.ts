@@ -92,7 +92,7 @@ export default class FilePacker {
 
         const fileContent = await fileApi.readString(f + ".js");
 
-        const ast = recast.parse(fileContent, { sourceFileName: name + ".js" });
+        const ast = recast.parse(fileContent, { sourceFileName: f + ".js" });
 
         const dependencies = DefineVisitor.parse(ast.program.body);
 
@@ -121,7 +121,7 @@ export default class FilePacker {
 
         this.content.push(ast);
         this.content.push(recast.parse(`
-    AmdLoader.instance.setup("${name}")
+    AmdLoader.instance.setup("${name}");
 `));
 
 //         const content = `${fileContent}

@@ -55,8 +55,6 @@ export default class DeclarationParser {
 
     public static resolveRelativePath(name: string, currentPackage: string): string {
 
-        // tslint:disable-next-line:no-debugger
-        debugger;
         if (name.charAt(0) !== ".") {
             return name;
         }

@@ -4,7 +4,10 @@ import TreeVisitor from "./TreeVisitor";
 
 export default class DefineVisitor extends TreeVisitor {
 
-    public static parse(tree: Node): string[] {
+    public static parse(tree: Node | string): string[] {
+        if (typeof tree === "string") {
+            tree = parseScript(tree, { tolerant: true });
+        }
         const d = new DefineVisitor(tree);
         return  d.define();
     }

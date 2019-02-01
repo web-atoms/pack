@@ -1,14 +1,51 @@
-import { builders } from "ast-types";
 import { join, parse } from "path";
-import * as recast from "recast";
 import DeclarationParser from "./DeclarationParser";
 import fileApi, { FileApi } from "./FileApi";
 import IPackage from "./IPackage";
 import DefineVisitor from "./parser/DefineVisitor";
 
+import Concat from "concat-with-sourcemaps";
+
+export interface IJSFile {
+    content: string;
+    file?: string;
+    map?: string;
+}
+
+async function jsFile(file, content?: string): Promise<IJSFile> {
+    if (!content) {
+        content = await fileApi.readString(file);
+    }
+    // check last line..
+    const lines = content.split("\n")
+        .map((s) => s.trim());
+    const srcMap = "//# sourceMappingURL=";
+    let map: string = "";
+    while (true && lines.length) {
+        const last = lines.pop();
+        if (last && last.startsWith(srcMap)) {
+            map = last.substr(srcMap.length);
+            break;
+        }
+    }
+    if (map) {
+        const parsedPath = parse(file);
+        map = join(parsedPath.dir, map);
+        if (await fileApi.exists(map)) {
+            map = await fileApi.readString(map);
+        }
+    }
+
+    return {
+        file,
+        content,
+        map: map || undefined
+    };
+}
+
 export default class FilePacker {
 
-    public content: any[] = [];
+    public content: IJSFile[] = [];
 
     public header: string[] = [];
 
@@ -16,7 +53,7 @@ export default class FilePacker {
 
     public done: { [key: string]: boolean } = {};
 
-    public sourceNodes: any[] = [];
+    public sourceNodes: IJSFile[] = [];
 
     constructor(
         public root: string,
@@ -43,15 +80,15 @@ export default class FilePacker {
 
         const outputFile = this.file + ".pack.js";
 
-        const umd = await fileApi.readString(`${this.root}/node_modules/web-atoms-amd-loader/umd.js`);
+        const umdFile = `${this.root}/node_modules/web-atoms-amd-loader/umd.js`;
 
-        this.sourceNodes.push(recast.parse(umd, { sourceFileName: "./node_modules/web-atoms-amd-loader/umd.js" }));
+        this.sourceNodes.push(await jsFile(umdFile));
 
-        this.sourceNodes.push(recast.parse(`
+        this.sourceNodes.push({ content: `
         AmdLoader.instance.register(
             [${ packages.map((s) => JSON.stringify(s)).join(",") }],
             [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
-`));
+`});
         // for (const iterator of this.content) {
         //     await fileApi.appendString(outputFile, iterator + "\r\n");
         // }
@@ -62,21 +99,16 @@ export default class FilePacker {
 
         // now lets do the magic !!
 
-        const list = [];
+        const concat = new Concat(true, outputFile, "\n");
+
         for (const iterator of this.sourceNodes) {
-            for (const body of iterator.program.body) {
-                list.push(body);
-            }
+            concat.add(iterator.file, iterator.content, iterator.map);
         }
 
-        const code = builders.program(list);
-
-        const result = recast.print(code, { sourceMapName: `${outputFile}.map.json` });
-
-        await fileApi.writeString(outputFile, `${result.code}
-//# sourceMappingURL=${outputFile}.map.json
+        await fileApi.writeString(outputFile, `${concat.content}
+//# sourceMappingURL=${filePath.base}.pack.js.map
 `);
-        await fileApi.writeString(outputFile + ".map.json", JSON.stringify(result.map));
+        await fileApi.writeString(outputFile + ".map", JSON.stringify(concat.sourceMap));
     }
 
     public async writeFile(f: string, name: string): Promise<void> {
@@ -92,9 +124,7 @@ export default class FilePacker {
 
         const fileContent = await fileApi.readString(f + ".js");
 
-        const ast = recast.parse(fileContent, { sourceFileName: f + ".js" });
-
-        const dependencies = DefineVisitor.parse(ast.program.body);
+        const dependencies = DefineVisitor.parse(fileContent);
 
         if (dependencies && dependencies.length > 0) {
 
@@ -119,15 +149,11 @@ export default class FilePacker {
 
         this.header.push(name);
 
-        this.content.push(ast);
-        this.content.push(recast.parse(`
+        this.content.push(await jsFile(f, fileContent));
+        this.content.push({ content: `
     AmdLoader.instance.setup("${name}");
-`));
+`});
 
-//         const content = `${fileContent}
-// AmdLoader.instance.setup("${name}");
-// `;
-//         this.content.push(content);
     }
 
 }

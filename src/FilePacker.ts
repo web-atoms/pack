@@ -1,15 +1,16 @@
-import { join, parse } from "path";
+import { join, parse, relative, resolve } from "path";
 import DeclarationParser from "./DeclarationParser";
 import fileApi, { FileApi } from "./FileApi";
 import IPackage from "./IPackage";
 import DefineVisitor from "./parser/DefineVisitor";
 
 import Concat from "concat-with-sourcemaps";
+import { RawSourceMap } from "source-map";
 
 export interface IJSFile {
     content: string;
     file?: string;
-    map?: string;
+    map?: RawSourceMap;
 }
 
 async function jsFile(file, content?: string): Promise<IJSFile> {
@@ -20,26 +21,28 @@ async function jsFile(file, content?: string): Promise<IJSFile> {
     const lines = content.split("\n")
         .map((s) => s.trim());
     const srcMap = "//# sourceMappingURL=";
-    let map: string = "";
+    let mapPath: string = "";
+    let map: RawSourceMap;
     while (true && lines.length) {
         const last = lines.pop();
         if (last && last.startsWith(srcMap)) {
-            map = last.substr(srcMap.length);
+            mapPath = last.substr(srcMap.length);
             break;
         }
     }
-    if (map) {
+    if (mapPath) {
         const parsedPath = parse(file);
-        map = join(parsedPath.dir, map);
-        if (await fileApi.exists(map)) {
-            map = await fileApi.readString(map);
+        mapPath = join(parsedPath.dir, mapPath);
+        if (await fileApi.exists(mapPath)) {
+            mapPath = await fileApi.readString(mapPath);
+            map = JSON.parse(mapPath);
         }
     }
 
     return {
         file,
         content,
-        map: map || undefined
+        map
     };
 }
 
@@ -101,14 +104,30 @@ export default class FilePacker {
 
         const concat = new Concat(true, outputFile, "\n");
 
+        const moduleRoot = resolve(filePath.dir);
+
+        const absRoot = moduleRoot;
+
         for (const iterator of this.sourceNodes) {
-            concat.add(iterator.file, iterator.content, iterator.map);
+            const r = iterator.file ? relative(absRoot, resolve(iterator.file) + ".js") : undefined;
+            const map = iterator.map;
+            if (map) {
+                const ss = map.sources;
+                if (ss) {
+                    const fileRoot = parse(resolve(iterator.file) + ".js");
+                    map.sources =
+                        ss.map((s) =>
+                            relative(moduleRoot, resolve(fileRoot.dir, s)).split("\\")
+                            .join("/") );
+                }
+            }
+            concat.add(r, iterator.content, iterator.map);
         }
 
         await fileApi.writeString(outputFile, `${concat.content}
 //# sourceMappingURL=${filePath.base}.pack.js.map
 `);
-        await fileApi.writeString(outputFile + ".map", JSON.stringify(concat.sourceMap));
+        await fileApi.writeString(outputFile + ".map", concat.sourceMap);
     }
 
     public async writeFile(f: string, name: string): Promise<void> {

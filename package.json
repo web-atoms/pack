@@ -25,7 +25,8 @@
   "dependencies": {
     "@types/node": "^10.12.18",
     "concat-with-sourcemaps": "^1.1.0",
-    "esprima": "^4.0.1"
+    "esprima": "^4.0.1",
+    "uglify-js": "^3.5.4"
   },
   "devDependencies": {
     "@types/esprima": "^4.0.2",

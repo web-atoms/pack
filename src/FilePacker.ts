@@ -4,6 +4,8 @@ import fileApi, { FileApi } from "./FileApi";
 import IPackage from "./IPackage";
 import DefineVisitor from "./parser/DefineVisitor";
 
+import * as UglifyJS from "uglify-js/tools/node";
+
 import Concat from "concat-with-sourcemaps";
 import { RawSourceMap } from "source-map";
 
@@ -82,6 +84,7 @@ export default class FilePacker {
         }
 
         const outputFile = this.file + ".pack.js";
+        const outputFileMin = this.file + ".pack.min.js";
 
         const umdFile = `${this.root}/node_modules/web-atoms-amd-loader/umd.js`;
 
@@ -124,10 +127,25 @@ export default class FilePacker {
             concat.add(r, iterator.content, iterator.map);
         }
 
-        await fileApi.writeString(outputFile, `${concat.content}
-//# sourceMappingURL=${filePath.base}.pack.js.map
-`);
+        const code = `${concat.content}
+        //# sourceMappingURL=${filePath.base}.pack.js.map
+        `;
+
+        await fileApi.writeString(outputFile, code);
         await fileApi.writeString(outputFile + ".map", concat.sourceMap);
+
+        // minify...
+        const result = UglifyJS.minify({
+            [outputFile]: code
+        }, {
+            sourceMap: {
+                content: concat.sourceMap,
+                url: outputFile + ".min.map"
+            }
+        });
+
+        await fileApi.writeString(outputFileMin, result.code);
+        await fileApi.writeString(outputFileMin + ".map", result.map);
     }
 
     public async writeFile(f: string, name: string): Promise<void> {

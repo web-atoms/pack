@@ -140,7 +140,7 @@ export default class FilePacker {
         }, {
             sourceMap: {
                 content: concat.sourceMap,
-                url: outputFile + ".min.map"
+                url: filePath.base + ".pack.min.js.map"
             }
         });
 

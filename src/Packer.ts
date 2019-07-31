@@ -32,9 +32,7 @@ export default class Packer {
         this.package.pack = config.pack || [];
 
         let packFiles = this.package.pack;
-        if (!packFiles) {
-            return;
-        }
+
 
         // search for all files with text @web-atoms-pack: true
 
@@ -43,6 +41,9 @@ export default class Packer {
                 return true;
             }
             if (!/\.js$/.test(f.path)) {
+                return false;
+            }
+            if (/node\_modules/.test(f.path)) {
                 return false;
             }
             const text = readFileSync(f.path, { encoding: "utf8"});
@@ -56,6 +57,10 @@ export default class Packer {
 
         for (const iterator of packFiles) {
             console.log(`Packing: ${iterator}`);
+        }
+
+        if (!packFiles) {
+            return;
         }
 
         const tasks = packFiles.map( async (file) => {

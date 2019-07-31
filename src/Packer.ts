@@ -1,6 +1,7 @@
-import fileApi from "./FileApi";
+import fileApi, { FileApi } from "./FileApi";
 import FilePacker from "./FilePacker";
 import IPackage from "./IPackage";
+import { readSync, readFileSync } from "fs";
 
 export default class Packer {
 
@@ -30,10 +31,28 @@ export default class Packer {
 
         this.package.pack = config.pack || [];
 
-        const packFiles = this.package.pack;
+        let packFiles = this.package.pack;
         if (!packFiles) {
             return;
         }
+
+        // search for all files with text @web-atoms-pack: true
+
+        const list = await FileApi.instance.readDir(".", (f) => {
+            if (f.isDirectory) {
+                return true;
+            }
+            if (!/\.js$/.test(f.path)) {
+                return false;
+            }
+            const text = readFileSync(f.path, { encoding: "utf8"});
+            if (/\/\/\s+\@web\-atoms\-pack\:\s+true/.test(text)) {
+                return true;
+            }
+            return false;
+        }, true);
+
+        packFiles = packFiles.concat(list.map((s) => s.path));
 
         const tasks = packFiles.map( async (file) => {
             const packer = new FilePacker(".", file, this.package);

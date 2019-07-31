@@ -157,6 +157,10 @@ export default class FilePacker {
 
         f = f.split("\\").join("/");
 
+        if (f.endsWith(".js")) {
+            f = f.substr(0, f.length - 3);
+        }
+
         name = name.split("\\").join("/");
 
         const fileContent = await fileApi.readString(f + ".js");

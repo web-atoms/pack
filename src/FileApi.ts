@@ -106,7 +106,7 @@ export class FileApi {
             });
         });
 
-        let all: IFileInfo[] = [ ... result.filter(filter) ];
+        let all: IFileInfo[] = [];
 
         await Promise.all( result.map( async (iterator) => {
             const fstat1 = await this.stat(iterator);
@@ -120,6 +120,10 @@ export class FileApi {
             if (iterator.isDirectory && nest) {
                 const children = await this.readDir(iterator, filter, true);
                 all = all.concat(children);
+            } else {
+                if (filter(iterator)) {
+                    all.push(iterator);
+                }
             }
 
             }));

@@ -52,7 +52,11 @@ export default class Packer {
             return false;
         }, true);
 
-        packFiles = packFiles.concat(list.map((s) => s.path));
+        packFiles = packFiles.concat(list.map((s) => s.dir + "/" + s.nameWithoutExtension));
+
+        for (const iterator of packFiles) {
+            console.log(`Packing: ${iterator}`);
+        }
 
         const tasks = packFiles.map( async (file) => {
             const packer = new FilePacker(".", file, this.package);

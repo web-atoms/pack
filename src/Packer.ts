@@ -43,6 +43,9 @@ export default class Packer {
             if (!/\.js$/.test(f.path)) {
                 return false;
             }
+            if (/\.pack\.js$/.test(f.path)) {
+                return false;
+            }
             if (/node\_modules/.test(f.path)) {
                 return false;
             }

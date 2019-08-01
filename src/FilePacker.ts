@@ -107,6 +107,8 @@ export default class FilePacker {
 
         const concat = new Concat(true, outputFile, "\n");
 
+        // concat.add("none.js", "// web-atoms-packed\n");
+
         const moduleRoot = resolve(filePath.dir);
 
         const absRoot = moduleRoot;
@@ -135,17 +137,17 @@ export default class FilePacker {
         await fileApi.writeString(outputFile + ".map", concat.sourceMap);
 
         // minify...
-        const result = UglifyJS.minify({
-            [outputFile]: code
-        }, {
-            sourceMap: {
-                content: concat.sourceMap,
-                url: filePath.base + ".pack.min.js.map"
-            }
-        });
+        // const result = UglifyJS.minify({
+        //     [outputFile]: code
+        // }, {
+        //     sourceMap: {
+        //         content: concat.sourceMap,
+        //         url: filePath.base + ".pack.min.js.map"
+        //     }
+        // });
 
-        await fileApi.writeString(outputFileMin, result.code);
-        await fileApi.writeString(outputFileMin + ".map", result.map);
+        // await fileApi.writeString(outputFileMin, result.code);
+        // await fileApi.writeString(outputFileMin + ".map", result.map);
     }
 
     public async writeFile(f: string, name: string): Promise<void> {

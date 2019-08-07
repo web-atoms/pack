@@ -144,7 +144,10 @@ export default class FilePacker {
             sourceMap: {
                 content: JSON.parse(concat.sourceMap),
                 url: filePath.base + ".pack.min.js.map"
-            }
+            },
+            keep_classnames: true,
+            mangle: false,
+            compress: false
         });
 
         await fileApi.writeString(outputFileMin, result.code);

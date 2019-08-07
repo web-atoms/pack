@@ -33,7 +33,6 @@ export default class Packer {
 
         let packFiles = this.package.pack;
 
-
         // search for all files with text @web-atoms-pack: true
 
         const list = await FileApi.instance.readDir(".", (f) => {

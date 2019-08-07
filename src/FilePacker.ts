@@ -4,7 +4,7 @@ import fileApi, { FileApi } from "./FileApi";
 import IPackage from "./IPackage";
 import DefineVisitor from "./parser/DefineVisitor";
 
-import * as UglifyJS from "uglify-js/tools/node";
+import * as Terser from "terser";
 
 import Concat from "concat-with-sourcemaps";
 import { RawSourceMap } from "source-map";
@@ -137,17 +137,18 @@ export default class FilePacker {
         await fileApi.writeString(outputFile + ".map", concat.sourceMap);
 
         // minify...
-        // const result = UglifyJS.minify({
-        //     [outputFile]: code
-        // }, {
-        //     sourceMap: {
-        //         content: concat.sourceMap,
-        //         url: filePath.base + ".pack.min.js.map"
-        //     }
-        // });
+        const result = Terser.minify({
+            [outputFile]: code
+        }, {
+            ecma: 5,
+            sourceMap: {
+                content: JSON.parse(concat.sourceMap),
+                url: filePath.base + ".pack.min.js.map"
+            }
+        });
 
-        // await fileApi.writeString(outputFileMin, result.code);
-        // await fileApi.writeString(outputFileMin + ".map", result.map);
+        await fileApi.writeString(outputFileMin, result.code);
+        await fileApi.writeString(outputFileMin + ".map", result.map);
     }
 
     public async writeFile(f: string, name: string): Promise<void> {

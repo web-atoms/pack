@@ -36,7 +36,6 @@
     "fs": "0.0.1-security",
     "jsdom": "^13.2.0",
     "test-dom": "^1.0.0",
-    "web-atoms-core": "^1.0.826",
-    "typescript": "^3.5.1"
+    "web-atoms-core": "^1.0.826"
   }
 }

@@ -13,10 +13,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: npm install
-      - run: npm install typescript
-      - run: npm build
-      - run: npm test
+      - run: npm run ci
+      - run: npm run build
+      - run: npm run test
 
   publish-npm:
     needs: build

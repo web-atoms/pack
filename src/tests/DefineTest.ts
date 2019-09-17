@@ -1,6 +1,6 @@
+import Test from "@web-atoms/unit-test/dist/Test";
+import TestItem from "@web-atoms/unit-test/dist/TestItem";
 import { parseScript } from "esprima";
-import { Test } from "web-atoms-core/dist/unit/Test";
-import { TestItem } from "web-atoms-core/dist/unit/TestItem";
 import DefineVisitor from "../parser/DefineVisitor";
 
 const script = `(function (factory) {

@@ -1,6 +1,6 @@
-import { Assert } from "web-atoms-core/dist/unit/Assert";
-import { Test } from "web-atoms-core/dist/unit/Test";
-import { TestItem } from "web-atoms-core/dist/unit/TestItem";
+import Assert from "@web-atoms/unit-test/dist/Assert";
+import Test from "@web-atoms/unit-test/dist/Test";
+import TestItem from "@web-atoms/unit-test/dist/TestItem";
 import DeclarationParser from "../DeclarationParser";
 
 export default class DeclarationTest extends TestItem {

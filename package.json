@@ -4,6 +4,7 @@
   "description": "Web Atoms Pack script to combine multple Web Atoms Modules",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 0",
     "postversion": "git push --follow-tags"
   },
@@ -26,7 +27,8 @@
     "@types/node": "^10.14.18",
     "concat-with-sourcemaps": "^1.1.0",
     "esprima": "^4.0.1",
-    "terser": "^4.3.1"
+    "terser": "^4.3.1",
+    "typescript": "^3.6.3"
   },
   "devDependencies": {
     "@types/esprima": "^4.0.2",

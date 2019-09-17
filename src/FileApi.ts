@@ -1,4 +1,4 @@
-import { access, constants, fstat, readdir, readFile, stat, Stats, writeFile, appendFile } from "fs";
+import { access, appendFile, constants, fstat, readdir, readFile, stat, Stats, writeFile } from "fs";
 import { join, parse } from "path";
 
 export interface IFileInfo {
@@ -39,7 +39,10 @@ export class FileApi {
         });
     }
 
-    public writeString(path: string, data: string): Promise<void> {
+    public writeString(path: string, data: string | any): Promise<void> {
+        if (typeof data !== "string") {
+            data = JSON.stringify(data);
+        }
         return new Promise<void>((resolve, reject) => {
             writeFile(path, data, "utf8", (err) => {
                 if (err) {

@@ -15,7 +15,7 @@ jobs:
           node-version: 12
       - run: npm install
       - run: npm install typescript
-      - run: node tsc
+      - run: npm build
       - run: npm test
 
   publish-npm:

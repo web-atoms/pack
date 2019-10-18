@@ -156,6 +156,10 @@ export default class FilePacker {
 
     public async writeFile(f: string, name: string): Promise<void> {
 
+        if (this.done[f]) {
+            return;
+        }
+
         this.done[f] = true;
         if (name === "reflect-metadata") {
             f = f + "/Reflect";

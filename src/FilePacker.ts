@@ -173,6 +173,11 @@ export default class FilePacker {
 
         name = name.split("\\").join("/");
 
+        if (this.done[name]) {
+            return;
+        }
+        this.done[name] = true;
+
         const fileContent = await fileApi.readString(f + ".js");
 
         const dependencies = DefineVisitor.parse(fileContent);

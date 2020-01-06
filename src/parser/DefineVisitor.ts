@@ -1,7 +1,7 @@
 import { parseScript, Program } from "esprima";
 import { CallExpression, Identifier, Node } from "estree";
-import TreeVisitor from "./TreeVisitor";
 import PackageVersion from "../PackageVersion";
+import TreeVisitor from "./TreeVisitor";
 
 export default class DefineVisitor extends TreeVisitor {
 

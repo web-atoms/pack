@@ -1,7 +1,7 @@
+import { existsSync, readFileSync, readSync } from "fs";
 import fileApi, { FileApi } from "./FileApi";
 import FilePacker from "./FilePacker";
 import IPackage from "./IPackage";
-import { readSync, readFileSync, existsSync } from "fs";
 import PackageVersion from "./PackageVersion";
 
 export default class Packer {

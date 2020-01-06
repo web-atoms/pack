@@ -1,6 +1,7 @@
 import { parseScript, Program } from "esprima";
 import { CallExpression, Identifier, Node } from "estree";
 import TreeVisitor from "./TreeVisitor";
+import PackageVersion from "../PackageVersion";
 
 export default class DefineVisitor extends TreeVisitor {
 
@@ -25,6 +26,14 @@ export default class DefineVisitor extends TreeVisitor {
         if (!this.dependencies) {
             return this.dependencies;
         }
+
+        if (PackageVersion.isV2) {
+            return [
+                "@web-atoms/core/dist/Atom",
+                "@web-atoms/core/dist/core/AtomList",
+                "@web-atoms/core/dist/web/WebApp",
+                ... this.dependencies];
+            }
 
         return [
             "web-atoms-core/dist/Atom",

@@ -1,7 +1,8 @@
 import fileApi, { FileApi } from "./FileApi";
 import FilePacker from "./FilePacker";
 import IPackage from "./IPackage";
-import { readSync, readFileSync } from "fs";
+import { readSync, readFileSync, existsSync } from "fs";
+import PackageVersion from "./PackageVersion";
 
 export default class Packer {
 
@@ -27,7 +28,14 @@ export default class Packer {
 
         this.package = JSON.parse(await fileApi.readString("package.json"));
 
-        const config = this.config = JSON.parse(await fileApi.readString("waconfig.json"));
+        const config = this.config =
+            existsSync("waconfig.json")
+                ? JSON.parse(await fileApi.readString("waconfig.json"))
+                : {};
+
+        if (this.package.dependencies["@web-atoms/core"]) {
+            PackageVersion.isV2 = true;
+        }
 
         this.package.pack = config.pack || [];
 

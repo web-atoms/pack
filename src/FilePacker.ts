@@ -8,6 +8,7 @@ import * as Terser from "terser";
 
 import Concat from "concat-with-sourcemaps";
 import { RawSourceMap } from "source-map";
+import PackageVersion from "./PackageVersion";
 
 export interface IJSFile {
     content: string;
@@ -86,7 +87,9 @@ export default class FilePacker {
         const outputFile = this.file + ".pack.js";
         const outputFileMin = this.file + ".pack.min.js";
 
-        const umdFile = `${this.root}/node_modules/web-atoms-amd-loader/umd.js`;
+        const umdFile = PackageVersion.isV2
+            ? `${this.root}/node_modules/@web-atoms/module-loader/umd.js`
+            : `${this.root}/node_modules/web-atoms-amd-loader/umd.js`;
 
         this.sourceNodes.push(await jsFile(umdFile));
 

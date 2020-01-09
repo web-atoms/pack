@@ -189,7 +189,7 @@ export default class FilePacker {
 
             const ds = dependencies
                 .map((s) => s.startsWith(".") ? DeclarationParser.resolveRelativePath(s, name) : s)
-                .filter((s) => !/\.(jpg|jpeg|svg|png|json|html|mp4|mp3|gif)$/i.test(s))
+                .filter((s) => !/\.(jpg|jpeg|svg|png|json|html|mp4|mp3|gif)$/i.test(s) && s !== "reflect-metadata")
                 .map((s) => DeclarationParser.parsePackage(s))
                 .map((s) =>
                     ({

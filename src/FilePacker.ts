@@ -182,7 +182,7 @@ export default class FilePacker {
         this.done[name] = true;
 
         this.header.push(name);
-        if (!/\.(jpg|jpeg|svg|png|json|html|mp4|mp3|gif)$/i.test(name)) {
+        if (/\.(jpg|jpeg|svg|png|json|html|mp4|mp3|gif)$/i.test(name)) {
             return;
         }
 

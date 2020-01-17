@@ -181,6 +181,11 @@ export default class FilePacker {
         }
         this.done[name] = true;
 
+        this.header.push(name);
+        if (!/\.(jpg|jpeg|svg|png|json|html|mp4|mp3|gif)$/i.test(name)) {
+            return;
+        }
+
         const fileContent = await fileApi.readString(f + ".js");
 
         const dependencies = DefineVisitor.parse(fileContent);
@@ -205,11 +210,6 @@ export default class FilePacker {
                 }
                 await this.writeFile(iterator.path, iterator.module.fullPath);
             }
-        }
-
-        this.header.push(name);
-        if (!/\.(jpg|jpeg|svg|png|json|html|mp4|mp3|gif)$/i.test(name)) {
-            return;
         }
 
         this.content.push(await jsFile(f, fileContent));

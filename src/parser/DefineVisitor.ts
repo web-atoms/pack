@@ -31,14 +31,12 @@ export default class DefineVisitor extends TreeVisitor {
             return [
                 "@web-atoms/core/dist/Atom",
                 "@web-atoms/core/dist/core/AtomList",
-                "@web-atoms/core/dist/web/WebApp",
                 ... this.dependencies];
             }
 
         return [
             "web-atoms-core/dist/Atom",
             "web-atoms-core/dist/core/AtomList",
-            "web-atoms-core/dist/web/WebApp",
             ... this.dependencies];
     }
 

@@ -61,6 +61,8 @@ export default class FilePacker {
 
     public sourceNodes: IJSFile[] = [];
 
+    public appPath: string = "";
+
     constructor(
         public root: string,
         public file: string,
@@ -104,6 +106,11 @@ export default class FilePacker {
 
         for (const iterator of this.content) {
             this.sourceNodes.push(iterator);
+        }
+
+        // need to add the app...
+        if (this.appPath) {
+            this.sourceNodes.push(await jsFile(`${this.root}/node_modules/${this.appPath}.js`));
         }
 
         // now lets do the magic !!

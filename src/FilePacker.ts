@@ -7,7 +7,7 @@ import DefineVisitor from "./parser/DefineVisitor";
 import * as Terser from "terser";
 
 import Concat from "concat-with-sourcemaps";
-import { statSync } from "fs";
+import { statSync, Stats } from "fs";
 import { RawSourceMap } from "source-map";
 import PackageVersion from "./PackageVersion";
 
@@ -19,8 +19,10 @@ export interface IJSFile {
 }
 
 async function jsFile(file, content?: string): Promise<IJSFile> {
+    let st: Stats = null;
     if (!content) {
         content = await fileApi.readString(file);
+        st = statSync(file);
     }
     // check last line..
     const lines = content.split("\n")
@@ -44,12 +46,10 @@ async function jsFile(file, content?: string): Promise<IJSFile> {
         }
     }
 
-    const st = statSync(file);
-
     return {
         file,
         content,
-        fileMTime: st.mtimeMs,
+        fileMTime: st ? st.mtimeMs : 0,
         map
     };
 }

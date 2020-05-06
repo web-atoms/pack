@@ -7,12 +7,14 @@ import DefineVisitor from "./parser/DefineVisitor";
 import * as Terser from "terser";
 
 import Concat from "concat-with-sourcemaps";
+import { statSync } from "fs";
 import { RawSourceMap } from "source-map";
 import PackageVersion from "./PackageVersion";
 
 export interface IJSFile {
     content: string;
     file?: string;
+    fileMTime?: number;
     map?: RawSourceMap;
 }
 
@@ -42,9 +44,12 @@ async function jsFile(file, content?: string): Promise<IJSFile> {
         }
     }
 
+    const s = statSync(file);
+
     return {
         file,
         content,
+        fileMTime: s.mtimeMs,
         map
     };
 }
@@ -70,7 +75,9 @@ export default class FilePacker {
 
     }
 
-    public async pack(): Promise<void> {
+    public async pack(): Promise<IJSFile[]> {
+
+        const dependentFiles = [];
 
         const filePath = parse(this.file);
         const moduleName = `${this.packageConfig.name}/${filePath.dir}/${filePath.base}`;
@@ -105,6 +112,9 @@ export default class FilePacker {
         // }
 
         for (const iterator of this.content) {
+            if (iterator.file) {
+                dependentFiles.push(iterator);
+            }
             this.sourceNodes.push(iterator);
         }
 
@@ -162,6 +172,8 @@ export default class FilePacker {
 
         await fileApi.writeString(outputFileMin, result.code);
         await fileApi.writeString(outputFileMin + ".map", result.map);
+
+        return dependentFiles;
     }
 
     public async writeFile(f: string, name: string): Promise<void> {

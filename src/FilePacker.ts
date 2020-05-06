@@ -44,12 +44,12 @@ async function jsFile(file, content?: string): Promise<IJSFile> {
         }
     }
 
-    const s = statSync(file);
+    const st = statSync(file);
 
     return {
         file,
         content,
-        fileMTime: s.mtimeMs,
+        fileMTime: st.mtimeMs,
         map
     };
 }

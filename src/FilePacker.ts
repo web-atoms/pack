@@ -117,16 +117,16 @@ export default class FilePacker {
         //     await fileApi.appendString(outputFile, iterator + "\r\n");
         // }
 
+        // need to add the app...
+        if (this.appPath) {
+            this.writeFile(`${this.root}/node_modules/${this.appPath}`, this.appPath);
+        }
+
         for (const iterator of this.content) {
             if (iterator.file) {
                 dependentFiles[iterator.file] = iterator.fileMTime;
             }
             this.sourceNodes.push(iterator);
-        }
-
-        // need to add the app...
-        if (this.appPath) {
-            this.writeFile(`${this.root}/node_modules/${this.appPath}`, this.appPath);
         }
 
         // now lets do the magic !!

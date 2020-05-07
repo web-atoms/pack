@@ -126,7 +126,7 @@ export default class FilePacker {
 
         // need to add the app...
         if (this.appPath) {
-            this.sourceNodes.push(await jsFile(`${this.root}/node_modules/${this.appPath}.js`));
+            this.writeFile(this.appPath, "@web-atoms/core");
         }
 
         // now lets do the magic !!

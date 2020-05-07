@@ -119,7 +119,7 @@ export default class FilePacker {
 
         // need to add the app...
         if (this.appPath) {
-            this.writeFile(`${this.root}/node_modules/${this.appPath}`, this.appPath);
+            await this.writeFile(`${this.root}/node_modules/${this.appPath}`, this.appPath);
         }
 
         for (const iterator of this.content) {

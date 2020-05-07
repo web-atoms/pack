@@ -126,7 +126,7 @@ export default class FilePacker {
 
         // need to add the app...
         if (this.appPath) {
-            this.writeFile(this.appPath, "@web-atoms/core");
+            this.writeFile(`${this.root}/node_modules/${this.appPath}`, this.appPath);
         }
 
         // now lets do the magic !!

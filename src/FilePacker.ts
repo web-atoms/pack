@@ -22,6 +22,8 @@ async function jsFile(file, content?: string): Promise<IJSFile> {
     let st: Stats = null;
     if (!content) {
         content = await fileApi.readString(file);
+    }
+    if (file) {
         st = statSync(file);
     }
     // check last line..

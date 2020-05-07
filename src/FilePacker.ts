@@ -216,10 +216,10 @@ export default class FilePacker {
         const dependencies = DefineVisitor.parse(fileContent);
 
         if (!this.appPath) {
-            if (dependencies.find((v) => v === "@web-atoms/core/dist/xf/controls/AtomXFControl")) {
+            if (dependencies.find((v) => v.toString() === "@web-atoms/core/dist/xf/controls/AtomXFControl")) {
                 this.appPath = "@web-atoms/core/dist/xf/XFApp";
             }
-            if (dependencies.find((v) => v === "@web-atoms/core/dist/web/controls/AtomControl")) {
+            if (dependencies.find((v) => v.toString() === "@web-atoms/core/dist/web/controls/AtomControl")) {
                 this.appPath = "@web-atoms/core/dist/web/WebApp";
             }
         }

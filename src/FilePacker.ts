@@ -138,12 +138,12 @@ export default class FilePacker {
         const absRoot = moduleRoot;
 
         for (const iterator of this.sourceNodes) {
-            const r = iterator.file ? relative(absRoot, resolve(iterator.file) + ".js") : undefined;
+            const r = iterator.file ? relative(absRoot, resolve(iterator.file)) : undefined;
             const map = iterator.map;
             if (map) {
                 const ss = map.sources;
                 if (ss) {
-                    const fileRoot = parse(resolve(iterator.file) + ".js");
+                    const fileRoot = parse(resolve(iterator.file));
                     map.sources =
                         ss.map((s) =>
                             relative(moduleRoot, resolve(fileRoot.dir, s)).split("\\")
@@ -235,7 +235,7 @@ export default class FilePacker {
             }
         }
 
-        this.content.push(await jsFile(f, fileContent));
+        this.content.push(await jsFile(f + ".js", fileContent));
         this.content.push({ content: `
     AmdLoader.instance.setup("${name}");
 `});

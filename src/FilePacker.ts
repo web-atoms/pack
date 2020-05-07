@@ -7,7 +7,7 @@ import DefineVisitor from "./parser/DefineVisitor";
 import * as Terser from "terser";
 
 import Concat from "concat-with-sourcemaps";
-import { statSync, Stats } from "fs";
+import { Stats, statSync } from "fs";
 import { RawSourceMap } from "source-map";
 import PackageVersion from "./PackageVersion";
 
@@ -54,6 +54,10 @@ async function jsFile(file, content?: string): Promise<IJSFile> {
     };
 }
 
+export interface IFileLastModifiedMap {
+    [key: string]: number;
+}
+
 export default class FilePacker {
 
     public content: IJSFile[] = [];
@@ -75,9 +79,9 @@ export default class FilePacker {
 
     }
 
-    public async pack(): Promise<IJSFile[]> {
+    public async pack(): Promise<IFileLastModifiedMap> {
 
-        const dependentFiles = [];
+        const dependentFiles: IFileLastModifiedMap = {};
 
         const filePath = parse(this.file);
         const moduleName = `${this.packageConfig.name}/${filePath.dir}/${filePath.base}`;
@@ -113,7 +117,7 @@ export default class FilePacker {
 
         for (const iterator of this.content) {
             if (iterator.file) {
-                dependentFiles.push(iterator);
+                dependentFiles[iterator.file] = iterator.fileMTime;
             }
             this.sourceNodes.push(iterator);
         }

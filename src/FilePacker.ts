@@ -90,15 +90,6 @@ export default class FilePacker {
 
         await this.writeFile(this.file, moduleName);
 
-        // packages
-        const packages: string[] = [];
-        for (const iterator of this.header) {
-            const pn = DeclarationParser.parsePackage(iterator);
-            if (!packages.find( (n) => n === pn.name)) {
-                packages.push(pn.name);
-            }
-        }
-
         const outputFile = this.file + ".pack.js";
         const outputFileMin = this.file + ".pack.min.js";
 
@@ -115,6 +106,15 @@ export default class FilePacker {
         // need to add the app...
         if (this.appPath) {
             await this.writeFile(`${this.root}/node_modules/${this.appPath}`, this.appPath);
+        }
+
+        // packages
+        const packages: string[] = [];
+        for (const iterator of this.header) {
+            const pn = DeclarationParser.parsePackage(iterator);
+            if (!packages.find( (n) => n === pn.name)) {
+                packages.push(pn.name);
+            }
         }
 
         this.sourceNodes.push({ content: `

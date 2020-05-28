@@ -108,11 +108,6 @@ export default class FilePacker {
 
         this.sourceNodes.push(await jsFile(umdFile));
 
-        this.sourceNodes.push({ content: `
-        AmdLoader.instance.register(
-            [${ packages.map((s) => JSON.stringify(s)).join(",") }],
-            [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
-`});
         // for (const iterator of this.content) {
         //     await fileApi.appendString(outputFile, iterator + "\r\n");
         // }
@@ -121,6 +116,12 @@ export default class FilePacker {
         if (this.appPath) {
             await this.writeFile(`${this.root}/node_modules/${this.appPath}`, this.appPath);
         }
+
+        this.sourceNodes.push({ content: `
+        AmdLoader.instance.register(
+            [${ packages.map((s) => JSON.stringify(s)).join(",") }],
+            [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
+`});
 
         for (const iterator of this.content) {
             if (iterator.file) {

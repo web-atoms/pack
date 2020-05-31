@@ -1,6 +1,5 @@
-import { join, parse, relative, resolve } from "path";
 import DeclarationParser from "./DeclarationParser";
-import fileApi, { FileApi } from "./FileApi";
+import fileApi, { FileApi, IFileInfo } from "./FileApi";
 import IPackage from "./IPackage";
 import DefineVisitor from "./parser/DefineVisitor";
 
@@ -40,8 +39,8 @@ async function jsFile(file, content?: string): Promise<IJSFile> {
         }
     }
     if (mapPath) {
-        const parsedPath = parse(file);
-        mapPath = join(parsedPath.dir, mapPath);
+        const parsedPath = fileApi.parse(file);
+        mapPath = fileApi.join(parsedPath.dir, mapPath);
         if (await fileApi.exists(mapPath)) {
             mapPath = await fileApi.readString(mapPath);
             map = JSON.parse(mapPath);
@@ -85,7 +84,8 @@ export default class FilePacker {
 
         const dependentFiles: IFileLastModifiedMap = {};
 
-        const filePath = parse(this.file);
+        const filePath = fileApi.parse(this.file);
+
         const moduleName = `${this.packageConfig.name}/${filePath.dir}/${filePath.base}`;
 
         await this.writeFile(this.file, moduleName);
@@ -136,20 +136,20 @@ export default class FilePacker {
 
         // concat.add("none.js", "// web-atoms-packed\n");
 
-        const moduleRoot = resolve(filePath.dir);
+        const moduleRoot = fileApi.resolve(filePath.dir);
 
         const absRoot = moduleRoot;
 
         for (const iterator of this.sourceNodes) {
-            const r = iterator.file ? relative(absRoot, resolve(iterator.file)) : undefined;
+            const r = iterator.file ? fileApi.relative(absRoot, fileApi.resolve(iterator.file)) : undefined;
             const map = iterator.map;
             if (map) {
                 const ss = map.sources;
                 if (ss) {
-                    const fileRoot = parse(resolve(iterator.file));
+                    const fileRoot = fileApi.parse(fileApi.resolve(iterator.file));
                     map.sources =
                         ss.map((s) =>
-                            relative(moduleRoot, resolve(fileRoot.dir, s)).split("\\")
+                            fileApi.relative(moduleRoot, fileApi.resolve(fileRoot.dir, s)).split("\\")
                             .join("/") );
                 }
             }
@@ -234,8 +234,8 @@ export default class FilePacker {
                 .map((s) =>
                     ({
                         path: this.packageConfig.name === s.name ?
-                        join(this.root, s.path) :
-                        join(this.root + "//node_modules//" + s.name, s.path),
+                        fileApi.join(this.root, s.path) :
+                        fileApi.join(this.root + "//node_modules//" + s.name, s.path),
                         module: s
                     }));
 

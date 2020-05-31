@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readSync } from "fs";
+import { format } from "path";
 import fileApi, { FileApi } from "./FileApi";
 import FilePacker from "./FilePacker";
 import IPackage from "./IPackage";
@@ -47,23 +48,23 @@ export default class Packer {
             if (f.isDirectory) {
                 return true;
             }
-            if (!/\.js$/.test(f.path)) {
+            if (".js" !== f.ext) {
                 return false;
             }
-            if (/\.pack\.js$/.test(f.path)) {
+            // if (/\.pack\.js$/.test(f.path)) {
+            //     return false;
+            // }
+            if (/node\_modules/.test(f.dir)) {
                 return false;
             }
-            if (/node\_modules/.test(f.path)) {
-                return false;
-            }
-            const text = readFileSync(f.path, { encoding: "utf8"});
+            const text = readFileSync(format(f), { encoding: "utf8"});
             if (/\/\/\s+\@web\-atoms\-pack\:\s+true/.test(text)) {
                 return true;
             }
             return false;
         }, true);
 
-        packFiles = packFiles.concat(list.map((s) => s.dir + "/" + s.nameWithoutExtension));
+        packFiles = packFiles.concat(list.map((s) => s.dir + "/" + s.name));
 
         for (const iterator of packFiles) {
             console.log(`Packing: ${iterator}`);

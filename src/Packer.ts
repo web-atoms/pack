@@ -10,7 +10,7 @@ export default class Packer {
     public package: IPackage;
     public config: any;
 
-    public async run(args: string[]): Promise<void> {
+    public async run(args: string[]): Promise<string[]> {
 
         const root = args[2];
         if (root) {
@@ -77,9 +77,9 @@ export default class Packer {
         const tasks = packFiles.map( async (file) => {
             const packer = new FilePacker(".", file, this.package);
             await packer.pack();
+            return file;
         });
-        await Promise.all(tasks);
-
+        return await Promise.all(tasks);
     }
 
 }

@@ -6,9 +6,13 @@ export interface IFileInfo extends path_1.ParsedPath {
     length?: number;
 }
 
-export class FileApi {
+export default class FileApi {
 
-    public static instance: FileApi = new FileApi();
+    constructor(public readonly root: string) {
+
+    }
+
+    // public static instance: FileApi = new FileApi();
 
     public parse(path: string): IFileInfo {
         return path_1.parse(path);
@@ -19,6 +23,9 @@ export class FileApi {
     }
 
     public resolve(... path: string[]): string {
+        if (path.length === 1) {
+            return path_1.resolve(this.root, path[0]);
+        }
         return path_1.resolve( ... path);
     }
 
@@ -27,6 +34,7 @@ export class FileApi {
     }
 
     public readString(path: string): Promise<string> {
+        path = this.resolve(path);
         return new Promise<string>((resolve, reject) => {
             readFile(path, "utf8", (err, data) => {
                 if (err) {
@@ -39,6 +47,7 @@ export class FileApi {
     }
 
     public appendString(path: string, data: string): Promise<void> {
+        path = this.resolve(path);
         return new Promise<void>((resolve, reject) => {
             appendFile(path, data, "utf8", (err) => {
                 if (err) {
@@ -51,6 +60,7 @@ export class FileApi {
     }
 
     public writeString(path: string, data: string | any): Promise<void> {
+        path = this.resolve(path);
         if (typeof data !== "string") {
             data = JSON.stringify(data);
         }
@@ -66,6 +76,7 @@ export class FileApi {
     }
 
     public exists(path: string): Promise<boolean> {
+        path = this.resolve(path);
         return new Promise<boolean>((resolve, reject) => {
             access(path, constants.F_OK, (error) => {
                 resolve(!error);
@@ -74,6 +85,7 @@ export class FileApi {
     }
 
     public async writeOnlyIfChanged(path: string, content: string): Promise<void> {
+        path = this.resolve(path);
         if (await this.exists(path)) {
             const existing = await this.readString(path);
             if (existing === content) {
@@ -87,6 +99,7 @@ export class FileApi {
     }
 
     public stat(file: string): Promise<Stats> {
+        file = this.resolve(file);
         const filePath = file;
         return new Promise<Stats>((resolve, reject) => {
             stat(filePath, (error, result) => {
@@ -108,7 +121,7 @@ export class FileApi {
 
         // read file names
         const result = await new Promise<IFileInfo[]>((resolve, reject) => {
-            readdir(filePath, (error, files: string[]) => {
+            readdir(this.resolve(filePath), (error, files: string[]) => {
                 if (error) {
                     reject(error);
                     return;
@@ -152,6 +165,6 @@ export class FileApi {
     }
 }
 
-const fileApi = FileApi.instance;
+// const fileApi = FileApi.instance;
 
-export default fileApi;
+// export default ;

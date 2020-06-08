@@ -1,9 +1,11 @@
 import { existsSync, readFileSync, readSync } from "fs";
 import { format } from "path";
-import fileApi, { FileApi } from "./FileApi";
+import FileApi from "./FileApi";
 import FilePacker from "./FilePacker";
 import IPackage from "./IPackage";
 import PackageVersion from "./PackageVersion";
+
+const fileApi = new FileApi(".");
 
 export default class Packer {
 
@@ -44,7 +46,7 @@ export default class Packer {
 
         // search for all files with text @web-atoms-pack: true
 
-        const list = await FileApi.instance.readDir(".", (f) => {
+        const list = await fileApi.readDir(".", (f) => {
             if (f.isDirectory) {
                 return true;
             }

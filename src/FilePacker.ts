@@ -1,5 +1,5 @@
 import DeclarationParser from "./DeclarationParser";
-import fileApi, { FileApi, IFileInfo } from "./FileApi";
+import FileApi, { IFileInfo } from "./FileApi";
 import IPackage from "./IPackage";
 import DefineVisitor from "./parser/DefineVisitor";
 
@@ -15,44 +15,6 @@ export interface IJSFile {
     file?: string;
     fileMTime?: number;
     map?: RawSourceMap;
-}
-
-async function jsFile(file, content?: string): Promise<IJSFile> {
-    let st: Stats = null;
-    if (!content) {
-        content = await fileApi.readString(file);
-    }
-    if (file) {
-        st = statSync(file);
-    }
-    // check last line..
-    const lines = content.split("\n")
-        .map((s) => s.trim());
-    const srcMap = "//# sourceMappingURL=";
-    let mapPath: string = "";
-    let map: RawSourceMap;
-    while (true && lines.length) {
-        const last = lines.pop();
-        if (last && last.startsWith(srcMap)) {
-            mapPath = last.substr(srcMap.length);
-            break;
-        }
-    }
-    if (mapPath) {
-        const parsedPath = fileApi.parse(file);
-        mapPath = fileApi.join(parsedPath.dir, mapPath);
-        if (await fileApi.exists(mapPath)) {
-            mapPath = await fileApi.readString(mapPath);
-            map = JSON.parse(mapPath);
-        }
-    }
-
-    return {
-        file,
-        content,
-        fileMTime: st ? st.mtimeMs : 0,
-        map
-    };
 }
 
 export interface IFileLastModifiedMap {
@@ -73,18 +35,20 @@ export default class FilePacker {
 
     public appPath: string = "";
 
+    public fileApi: FileApi;
+
     constructor(
         public root: string,
         public file: string,
         public packageConfig: IPackage) {
-
+        this.fileApi = new FileApi(root);
     }
 
     public async pack(): Promise<IFileLastModifiedMap> {
 
         const dependentFiles: IFileLastModifiedMap = {};
 
-        const filePath = fileApi.parse(this.file);
+        const filePath = this.fileApi.parse(this.file);
 
         const moduleName = `${this.packageConfig.name}/${filePath.dir}/${filePath.base}`;
 
@@ -97,10 +61,10 @@ export default class FilePacker {
             ? `${this.root}/node_modules/@web-atoms/module-loader/umd.js`
             : `${this.root}/node_modules/web-atoms-amd-loader/umd.js`;
 
-        this.sourceNodes.push(await jsFile(umdFile));
+        this.sourceNodes.push(await this.jsFile(umdFile));
 
         // for (const iterator of this.content) {
-        //     await fileApi.appendString(outputFile, iterator + "\r\n");
+        //     await this.fileApi.appendString(outputFile, iterator + "\r\n");
         // }
 
         // need to add the app...
@@ -136,20 +100,20 @@ export default class FilePacker {
 
         // concat.add("none.js", "// web-atoms-packed\n");
 
-        const moduleRoot = fileApi.resolve(filePath.dir);
+        const moduleRoot = this.fileApi.resolve(filePath.dir);
 
         const absRoot = moduleRoot;
 
         for (const iterator of this.sourceNodes) {
-            const r = iterator.file ? fileApi.relative(absRoot, fileApi.resolve(iterator.file)) : undefined;
+            const r = iterator.file ? this.fileApi.relative(absRoot, this.fileApi.resolve(iterator.file)) : undefined;
             const map = iterator.map;
             if (map) {
                 const ss = map.sources;
                 if (ss) {
-                    const fileRoot = fileApi.parse(fileApi.resolve(iterator.file));
+                    const fileRoot = this.fileApi.parse(this.fileApi.resolve(iterator.file));
                     map.sources =
                         ss.map((s) =>
-                            fileApi.relative(moduleRoot, fileApi.resolve(fileRoot.dir, s)).split("\\")
+                            this.fileApi.relative(moduleRoot, this.fileApi.resolve(fileRoot.dir, s)).split("\\")
                             .join("/") );
                 }
             }
@@ -160,8 +124,8 @@ export default class FilePacker {
         //# sourceMappingURL=${filePath.base}.pack.js.map
         `;
 
-        await fileApi.writeString(outputFile, code);
-        await fileApi.writeString(outputFile + ".map", concat.sourceMap);
+        await this.fileApi.writeString(outputFile, code);
+        await this.fileApi.writeString(outputFile + ".map", concat.sourceMap);
 
         // minify...
         const result = Terser.minify({
@@ -177,8 +141,8 @@ export default class FilePacker {
             compress: false
         });
 
-        await fileApi.writeString(outputFileMin, result.code);
-        await fileApi.writeString(outputFileMin + ".map", result.map);
+        await this.fileApi.writeString(outputFileMin, result.code);
+        await this.fileApi.writeString(outputFileMin + ".map", result.map);
 
         return dependentFiles;
     }
@@ -212,7 +176,7 @@ export default class FilePacker {
             return;
         }
 
-        const fileContent = await fileApi.readString(f + ".js");
+        const fileContent = await this.fileApi.readString(f + ".js");
 
         const dependencies = DefineVisitor.parse(fileContent);
 
@@ -234,8 +198,8 @@ export default class FilePacker {
                 .map((s) =>
                     ({
                         path: this.packageConfig.name === s.name ?
-                        fileApi.join(this.root, s.path) :
-                        fileApi.join(this.root + "//node_modules//" + s.name, s.path),
+                        this.fileApi.join(this.root, s.path) :
+                        this.fileApi.join(this.root + "//node_modules//" + s.name, s.path),
                         module: s
                     }));
 
@@ -247,11 +211,49 @@ export default class FilePacker {
             }
         }
 
-        this.content.push(await jsFile(f + ".js", fileContent));
+        this.content.push(await this.jsFile(f + ".js", fileContent));
         this.content.push({ content: `
     AmdLoader.instance.setup("${name}");
 `});
 
+    }
+
+    private async jsFile(file, content?: string): Promise<IJSFile> {
+        let st: Stats = null;
+        if (!content) {
+            content = await this.fileApi.readString(file);
+        }
+        if (file) {
+            st = statSync(file);
+        }
+        // check last line..
+        const lines = content.split("\n")
+            .map((s) => s.trim());
+        const srcMap = "//# sourceMappingURL=";
+        let mapPath: string = "";
+        let map: RawSourceMap;
+        while (true && lines.length) {
+            const last = lines.pop();
+            if (last && last.startsWith(srcMap)) {
+                mapPath = last.substr(srcMap.length);
+                break;
+            }
+        }
+        if (mapPath) {
+            const parsedPath = this.fileApi.parse(file);
+            mapPath = this.fileApi.join(parsedPath.dir, mapPath);
+            if (await this.fileApi.exists(mapPath)) {
+                mapPath = await this.fileApi.readString(mapPath);
+                map = JSON.parse(mapPath);
+            }
+        }
+
+        return {
+            file,
+            content,
+            fileMTime: st ? st.mtimeMs : 0,
+            map
+        };
     }
 
 }

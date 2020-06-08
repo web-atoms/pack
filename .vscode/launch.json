@@ -17,7 +17,7 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}\\index.js",
             "args": [
-                "D:\\git\\akash\\github\\web-atoms-samples\\web-atoms-samples"
+                "D:\\Temp\\packer-temp\\3dcd387349704d11b5d855ac0949eeec"
             ]
         }
     ]

@@ -1,10 +1,13 @@
-var Packer = require("./dist/Packer").default;
+var Packer = require("./dist/FilePacker").default;
 
-var packer = new Packer();
 exports.default = function (cb, p) {
-    packer.run(p || [])
-        .then(function(r) {
-            cb(null, r);
+    var dir = p[0];
+    var file = p[1];
+    var pkg = JSON.parse(p[2]);
+    var packer = new Packer(dir, file, pkg);
+    packer.pack()
+        .then(function() {
+            cb(null);
         })
         .catch(function(e) {
             cb(e);

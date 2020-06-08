@@ -7,7 +7,7 @@ exports.default = function (cb, p) {
     var packer = new Packer(dir, file, pkg);
     packer.pack()
         .then(function() {
-            cb(null);
+            cb(null, "done");
         })
         .catch(function(e) {
             cb(e);

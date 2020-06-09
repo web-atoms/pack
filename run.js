@@ -1,5 +1,7 @@
 var Packer = require("./dist/FilePacker").default;
+var PackageVersion = require("./dist/PackageVersion").default;
 
+PackageVersion.isV2 = true;
 exports.default = function (cb, p) {
     try {
     var dir = p.dir;

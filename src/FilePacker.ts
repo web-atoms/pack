@@ -6,9 +6,9 @@ import DefineVisitor from "./parser/DefineVisitor";
 import * as Terser from "terser";
 
 import Concat from "concat-with-sourcemaps";
-import { Stats, statSync } from "fs";
 import { RawSourceMap } from "source-map";
 import PackageVersion from "./PackageVersion";
+import { Stats } from "fs";
 
 export interface IJSFile {
     content: string;
@@ -224,7 +224,7 @@ export default class FilePacker {
             content = await this.fileApi.readString(file);
         }
         if (file) {
-            st = statSync(file);
+            st = this.fileApi.statSync(file);
         }
         // check last line..
         const lines = content.split("\n")

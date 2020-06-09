@@ -1,4 +1,4 @@
-import { access, appendFile, constants, fstat, readdir, readFile, stat, Stats, writeFile } from "fs";
+import * as fs from "fs";
 import * as path_1 from "path";
 
 export interface IFileInfo extends path_1.ParsedPath {
@@ -36,7 +36,7 @@ export default class FileApi {
     public readString(path: string): Promise<string> {
         path = this.resolve(path);
         return new Promise<string>((resolve, reject) => {
-            readFile(path, "utf8", (err, data) => {
+            fs.readFile(path, "utf8", (err, data) => {
                 if (err) {
                     reject(err);
                     return;
@@ -49,7 +49,7 @@ export default class FileApi {
     public appendString(path: string, data: string): Promise<void> {
         path = this.resolve(path);
         return new Promise<void>((resolve, reject) => {
-            appendFile(path, data, "utf8", (err) => {
+            fs.appendFile(path, data, "utf8", (err) => {
                 if (err) {
                     reject(err);
                     return;
@@ -65,7 +65,7 @@ export default class FileApi {
             data = JSON.stringify(data);
         }
         return new Promise<void>((resolve, reject) => {
-            writeFile(path, data, "utf8", (err) => {
+            fs.writeFile(path, data, "utf8", (err) => {
                 if (err) {
                     reject(err);
                     return;
@@ -78,7 +78,7 @@ export default class FileApi {
     public exists(path: string): Promise<boolean> {
         path = this.resolve(path);
         return new Promise<boolean>((resolve, reject) => {
-            access(path, constants.F_OK, (error) => {
+            fs.access(path, fs.constants.F_OK, (error) => {
                 resolve(!error);
             });
         });
@@ -98,11 +98,11 @@ export default class FileApi {
         await this.writeString(path, content);
     }
 
-    public stat(file: string): Promise<Stats> {
+    public stat(file: string): Promise<fs.Stats> {
         file = this.resolve(file);
         const filePath = file;
-        return new Promise<Stats>((resolve, reject) => {
-            stat(filePath, (error, result) => {
+        return new Promise<fs.Stats>((resolve, reject) => {
+            fs.stat(filePath, (error, result) => {
                 if (error) {
                     reject(error);
                     return;
@@ -110,6 +110,10 @@ export default class FileApi {
                 resolve(result);
             });
         });
+    }
+
+    public statSync(file: any): fs.Stats {
+        return fs.statSync(this.resolve(file));
     }
 
     public async readDir(
@@ -121,7 +125,7 @@ export default class FileApi {
 
         // read file names
         const result = await new Promise<IFileInfo[]>((resolve, reject) => {
-            readdir(this.resolve(filePath), (error, files: string[]) => {
+            fs.readdir(this.resolve(filePath), (error, files: string[]) => {
                 if (error) {
                     reject(error);
                     return;

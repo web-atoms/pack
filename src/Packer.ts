@@ -48,7 +48,7 @@ export default class Packer {
 
         const list = await fileApi.readDir(".", (f) => {
             if (f.isDirectory) {
-                return true;
+                return false;
             }
             if (".js" !== f.ext) {
                 return false;
@@ -66,7 +66,13 @@ export default class Packer {
             return false;
         }, true);
 
-        packFiles = packFiles.concat(list.map((s) => s.dir + "/" + s.name));
+        for (const iterator of list) {
+            if (iterator.name.endsWith(".pack")) {
+                continue;
+            }
+            const name = `${iterator.dir}/${iterator.name}`;
+            packFiles.push(name);
+        }
 
         for (const iterator of packFiles) {
             console.log(`Packing: ${iterator}`);

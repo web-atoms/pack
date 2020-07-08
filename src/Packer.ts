@@ -42,7 +42,7 @@ export default class Packer {
 
         this.package.pack = config.pack || [];
 
-        let packFiles = this.package.pack;
+        const packFiles = this.package.pack;
 
         // search for all files with text @web-atoms-pack: true
 

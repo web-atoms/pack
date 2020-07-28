@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/web-atoms/pack#readme",
   "dependencies": {
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
     "@web-atoms/unit-test": "^1.0.24",
     "concat-with-sourcemaps": "^1.1.0",
     "esprima": "^4.0.1",

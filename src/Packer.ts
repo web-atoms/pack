@@ -67,7 +67,8 @@ export default class Packer {
         }, true);
 
         for (const iterator of list) {
-            if (iterator.name.endsWith(".pack")) {
+            if (iterator.name.endsWith(".pack")
+                || iterator.name.endsWith(".es5")) {
                 continue;
             }
             const name = `${iterator.dir}/${iterator.name}`;

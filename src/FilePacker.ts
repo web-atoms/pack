@@ -5,6 +5,10 @@ import DefineVisitor from "./parser/DefineVisitor";
 
 import * as Terser from "terser";
 
+import * as babel from "@babel/core";
+
+import * as preset from "@babel/preset-env";
+
 import Concat from "concat-with-sourcemaps";
 import { RawSourceMap } from "source-map";
 import PackageVersion from "./PackageVersion";
@@ -120,21 +124,47 @@ export default class FilePacker {
             concat.add(r, iterator.content, iterator.map);
         }
 
-        const code = `${concat.content}
-        //# sourceMappingURL=${filePath.base}.pack.js.map
-        `;
+        const outputCode = `${concat.content}
+//# sourceMappingURL=${filePath.base}.pack.js.map
+`;
 
-        await this.fileApi.writeString(outputFile, code);
-        await this.fileApi.writeString(outputFile + ".map", concat.sourceMap);
+        const sourceMap = JSON.parse(concat.sourceMap);
+
+        await this.outputJS({ outputFile, outputCode, sourceMap, sourceMapSource: concat.sourceMap });
+
+        // lets create es5...
+        const { code, map } = babel.transformSync(outputCode, {
+            presets: [preset],
+            sourceType: "script",
+            inputSourceMap: sourceMap
+        });
+
+        await this.outputJS({
+            outputCode: code,
+            sourceMap: map,
+            sourceMapSource: JSON.stringify(map),
+            outputFile: this.file + ".pack.es5.js"
+        });
+
+        return dependentFiles;
+    }
+
+    public async outputJS({ outputFile, outputCode, sourceMap, sourceMapSource }) {
+        const file = outputFile.endsWith(".js") ? outputFile.substr(0, outputFile.length - 3) : outputFile;
+        await this.fileApi.writeString(outputFile, outputCode);
+        await this.fileApi.writeString(outputFile + ".map", sourceMapSource);
+
+        const outputFileMin = file + ".min.js";
+        const outputFileMinMap = file + ".min.js.map";
 
         // minify...
         const result = Terser.minify({
-            [outputFile]: code
+            [outputFile]: outputCode
         }, {
             ecma: 5,
             sourceMap: {
-                content: JSON.parse(concat.sourceMap),
-                url: filePath.base + ".pack.min.js.map"
+                content: sourceMap,
+                url: outputFileMinMap
             },
             keep_classnames: true,
             mangle: false,
@@ -142,9 +172,7 @@ export default class FilePacker {
         });
 
         await this.fileApi.writeString(outputFileMin, result.code);
-        await this.fileApi.writeString(outputFileMin + ".map", result.map);
-
-        return dependentFiles;
+        await this.fileApi.writeString(outputFileMinMap, result.map);
     }
 
     public async writeFile(f: string, name: string): Promise<void> {

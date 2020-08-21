@@ -180,7 +180,7 @@ export default class FilePacker {
 
         const dependencies = DefineVisitor.parse(fileContent);
 
-        if (!this.appPath) {
+        if (!this.appPath && dependencies) {
             if (dependencies.find((v) => v.toString() === "@web-atoms/core/dist/xf/controls/AtomXFControl")) {
                 this.appPath = "@web-atoms/core/dist/xf/XFApp";
             }

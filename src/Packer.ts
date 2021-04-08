@@ -60,6 +60,10 @@ export default class Packer {
                 return false;
             }
             const text = readFileSync(format(f), { encoding: "utf8"});
+            const packRequire = /require\(\s*\"\@web\-atoms\/core\/dist\/Pack\"\s*\)/;
+            if (packRequire.test(text)) {
+                return true;
+            }
             if (/\/\/\s+\@web\-atoms\-pack\:\s+true/.test(text)) {
                 return true;
             }

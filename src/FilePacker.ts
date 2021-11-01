@@ -63,6 +63,8 @@ export default class FilePacker {
 
         this.sourceNodes.push(await this.jsFile(umdFile));
 
+        this.sourceNodes.push({ content: `define.amd = define;` });
+
         // for (const iterator of this.content) {
         //     await this.fileApi.appendString(outputFile, iterator + "\r\n");
         // }
@@ -93,6 +95,8 @@ export default class FilePacker {
             }
             this.sourceNodes.push(iterator);
         }
+
+        this.sourceNodes.push({ content: `define.amd = null;`});
 
         // now lets do the magic !!
 

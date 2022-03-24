@@ -128,10 +128,10 @@ export default class FilePacker {
         await this.fileApi.writeString(outputFile + ".map", concat.sourceMap);
 
         // minify...
-        const result = Terser.minify({
+        const result = await Terser.minify({
             [outputFile]: code
         }, {
-            ecma: 5,
+            ecma: 2015,
             sourceMap: {
                 content: JSON.parse(concat.sourceMap),
                 url: filePath.base + ".pack.min.js.map"

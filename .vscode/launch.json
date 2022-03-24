@@ -17,7 +17,7 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}\\index.js",
             "args": [
-                "D:\\Temp\\packer-temp\\3dcd387349704d11b5d855ac0949eeec"
+                "D:\\git\\c8private\\ts-branded"
             ]
         }
     ]

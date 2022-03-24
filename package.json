@@ -27,7 +27,7 @@
     "@web-atoms/unit-test": "^1.0.24",
     "concat-with-sourcemaps": "^1.1.0",
     "esprima": "^4.0.1",
-    "terser": "^4.6.7"
+    "terser": "^5.12.1"
   },
   "bundledDependencies": [
     "@web-atoms/unit-test",

@@ -25,19 +25,17 @@
   "homepage": "https://github.com/web-atoms/pack#readme",
   "dependencies": {
     "@web-atoms/unit-test": "^1.0.24",
+    "acorn-walk": "^8.2.0",
     "concat-with-sourcemaps": "^1.1.0",
-    "esprima": "^4.0.1",
     "terser": "^5.12.1"
   },
   "bundledDependencies": [
     "@web-atoms/unit-test",
     "concat-with-sourcemaps",
-    "esprima",
     "terser"
   ],
   "devDependencies": {
     "@types/node": "^10.17.17",
-    "@types/esprima": "^4.0.2",
     "colors": "^1.4.0",
     "fs": "0.0.1-security",
     "jsdom": "^13.2.0",

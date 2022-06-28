@@ -1,73 +1,99 @@
-import { parseScript, Program } from "esprima";
-import { CallExpression, Identifier, Node } from "estree";
+import { parse, Node } from "acorn";
+import { simple } from "acorn-walk";
 import PackageVersion from "../PackageVersion";
-import TreeVisitor from "./TreeVisitor";
 
-export default class DefineVisitor extends TreeVisitor {
+function inspectDefine(e, dependencies: string[]): void {
+    const id = e.callee;
+    if (!(id && id.type === "Identifier" && id.name === "define")) {
+        return;
+    }
+    const a = e.arguments[0];
+    if (!(a && a.type === "ArrayExpression")) {
+        return;
+    }
+    const [req, exp] = a.elements;
+    if (!(req && req.type === "Literal" && req.value === "require")) {
+        return;
+    }
+    if (!(exp && exp.type === "Literal" && exp.value === "exports")) {
+        return;
+    }
+
+    dependencies.push(... a.elements
+        .filter((el, i) => i > 1)
+        .map((el) => el.type === "Literal" ? el.value.toString() : undefined));
+}
+
+export default class DefineVisitor {
 
     public static parse(tree: Node | string): string[] {
         if (typeof tree === "string") {
-            tree = parseScript(tree, { tolerant: true });
+            tree = parse(tree, { ecmaVersion: 2019 });
         }
-        const d = new DefineVisitor(tree);
-        return  d.define();
-    }
-
-    private dependencies: string[] = null;
-
-    constructor(tree: Node) {
-        super(tree);
-    }
-
-    public define(): string[] {
-
-        this.visit(this.tree);
-
-        if (!this.dependencies) {
-            return this.dependencies;
-        }
-
-        if (PackageVersion.isV2) {
-            return [
-                "@web-atoms/core/dist/Atom",
-                "@web-atoms/core/dist/core/AtomList",
-                ... this.dependencies];
+        const result: string[] = [];
+        simple(tree, {
+            CallExpression(e) {
+                inspectDefine(e, result);
             }
-
-        return [
-            "web-atoms-core/dist/Atom",
-            "web-atoms-core/dist/core/AtomList",
-            ... this.dependencies];
+        });
+        return result;
     }
 
-    public callExpression(e: CallExpression): Node | Node[] {
+    // private dependencies: string[] = null;
 
-        if (!this.dependencies) {
-            this.inspectDefine(e);
-        }
-        return this.expression(e);
-    }
+    // constructor(tree: Node) {
+    //     super(tree);
+    // }
 
-    private inspectDefine(e: CallExpression): void {
-        const id = e.callee as Identifier;
-        if (!(id && id.type === "Identifier" && id.name === "define")) {
-            return;
-        }
-        const a = e.arguments[0];
-        if (!(a && a.type === "ArrayExpression")) {
-            return;
-        }
-        const [req, exp] = a.elements;
-        if (!(req && req.type === "Literal" && req.value === "require")) {
-            return;
-        }
-        if (!(exp && exp.type === "Literal" && exp.value === "exports")) {
-            return;
-        }
+    // public define(): string[] {
 
-        this.dependencies = a.elements
-            .filter((el, i) => i > 1)
-            .map((el) => el.type === "Literal" ? el.value.toString() : undefined);
-    }
+    //     this.visit(this.tree);
+
+    //     if (!this.dependencies) {
+    //         return this.dependencies;
+    //     }
+
+    //     if (PackageVersion.isV2) {
+    //         return [
+    //             "@web-atoms/core/dist/Atom",
+    //             "@web-atoms/core/dist/core/AtomList",
+    //             ... this.dependencies];
+    //         }
+
+    //     return [
+    //         "web-atoms-core/dist/Atom",
+    //         "web-atoms-core/dist/core/AtomList",
+    //         ... this.dependencies];
+    // }
+
+    // public callExpression(e: CallExpression): Node | Node[] {
+
+    //     if (!this.dependencies) {
+    //         this.inspectDefine(e);
+    //     }
+    //     return this.expression(e);
+    // }
+
+    // private inspectDefine(e: CallExpression): void {
+    //     const id = e.callee as Identifier;
+    //     if (!(id && id.type === "Identifier" && id.name === "define")) {
+    //         return;
+    //     }
+    //     const a = e.arguments[0];
+    //     if (!(a && a.type === "ArrayExpression")) {
+    //         return;
+    //     }
+    //     const [req, exp] = a.elements;
+    //     if (!(req && req.type === "Literal" && req.value === "require")) {
+    //         return;
+    //     }
+    //     if (!(exp && exp.type === "Literal" && exp.value === "exports")) {
+    //         return;
+    //     }
+
+    //     this.dependencies = a.elements
+    //         .filter((el, i) => i > 1)
+    //         .map((el) => el.type === "Literal" ? el.value.toString() : undefined);
+    // }
 
 }

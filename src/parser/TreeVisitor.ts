@@ -1,4 +1,4 @@
-import { Node } from "estree";
+import { Node } from "acorn";
 
 function isString(stringToCheck): boolean {
     if (stringToCheck.constructor === String) {

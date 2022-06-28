@@ -1,9 +1,3 @@
-import { parseScript } from "esprima";
-import { ArrowFunctionExpression, BaseExpression,
-    Expression, FunctionDeclaration, FunctionExpression,
-    Identifier, MemberExpression, Node, ReturnStatement } from "estree";
-import DefineVisitor from "./parser/DefineVisitor";
-
 export interface IPackageInfo {
     name: string;
     path: string;

@@ -67,6 +67,9 @@ export default class Packer {
             if (/\/\/\s+\@web\-atoms\-pack\:\s+true/.test(text)) {
                 return true;
             }
+            if (text.includes(`"@web-atoms/core/dist/Pack"`)) {
+                return true;
+            }
             return false;
         }, true);
 

@@ -24,6 +24,22 @@ function inspectDefine(e, dependencies: string[]): void {
         .map((el) => el.type === "Literal" ? el.value.toString() : undefined));
 }
 
+function inspectRegister(e, dependencies: string[]): void {
+    const id = e.callee;
+    if (!(id && id.type === "MemberExpression"
+        && id.property?.name === "register"
+        && id.object?.name === "System")) {
+        return;
+    }
+    const a = e.arguments[0];
+    if (!(a && a.type === "ArrayExpression")) {
+        return;
+    }
+
+    dependencies.push(... a.elements
+        .map((el) => el.type === "Literal" ? el.value.toString() : undefined));
+}
+
 export default class DefineVisitor {
 
     public static parse(tree: Node | string): string[] {

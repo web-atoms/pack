@@ -48,10 +48,6 @@ export default class FilePacker {
 
         const dependentFiles: IFileLastModifiedMap = {};
 
-        this.sourceNodes.push({
-            content: `setTimeout(() => {\r\n`
-        });
-
         const filePath = this.fileApi.parse(this.file);
 
         const moduleName = `${this.packageConfig.name}/${filePath.dir}/${filePath.base}`;
@@ -66,6 +62,10 @@ export default class FilePacker {
             : `${this.root}/node_modules/web-atoms-amd-loader/umd.js`;
 
         this.sourceNodes.push(await this.jsFile(umdFile));
+
+        this.sourceNodes.push({
+            content: `setTimeout(() => {\r\n`
+        });
 
         // for (const iterator of this.content) {
         //     await this.fileApi.appendString(outputFile, iterator + "\r\n");

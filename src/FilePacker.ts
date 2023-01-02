@@ -63,10 +63,6 @@ export default class FilePacker {
 
         this.sourceNodes.push(await this.jsFile(umdFile));
 
-        this.sourceNodes.push({
-            content: `setTimeout(() => {\r\n`
-        });
-
         // for (const iterator of this.content) {
         //     await this.fileApi.appendString(outputFile, iterator + "\r\n");
         // }
@@ -90,6 +86,10 @@ export default class FilePacker {
             [${ packages.map((s) => JSON.stringify(s)).join(",") }],
             [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
 `});
+
+        this.sourceNodes.push({
+            content: `setTimeout(() => {\r\n`
+        });
 
         for (const iterator of this.content) {
             if (iterator.file) {

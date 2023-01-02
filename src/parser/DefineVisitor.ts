@@ -50,6 +50,7 @@ export default class DefineVisitor {
         simple(tree, {
             CallExpression(e) {
                 inspectDefine(e, result);
+                inspectRegister(e, result);
             }
         });
         return result;

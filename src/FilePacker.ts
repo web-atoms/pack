@@ -48,6 +48,10 @@ export default class FilePacker {
 
         const dependentFiles: IFileLastModifiedMap = {};
 
+        this.sourceNodes.push({
+            content: `setTimeout(() => {\r\n`
+        });
+
         const filePath = this.fileApi.parse(this.file);
 
         const moduleName = `${this.packageConfig.name}/${filePath.dir}/${filePath.base}`;
@@ -93,6 +97,11 @@ export default class FilePacker {
             }
             this.sourceNodes.push(iterator);
         }
+
+        this.sourceNodes.push({
+            content: `\r\n}, 10);`
+        });
+
 
         // now lets do the magic !!
 

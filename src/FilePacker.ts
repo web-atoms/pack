@@ -87,21 +87,12 @@ export default class FilePacker {
             [${ this.header.map((s) => JSON.stringify(s)).join(",") }]);
 `});
 
-        this.sourceNodes.push({
-            content: `setTimeout(() => {\r\n`
-        });
-
         for (const iterator of this.content) {
             if (iterator.file) {
                 dependentFiles[iterator.file] = iterator.fileMTime;
             }
             this.sourceNodes.push(iterator);
         }
-
-        this.sourceNodes.push({
-            content: `\r\n}, 10);`
-        });
-
 
         // now lets do the magic !!
 

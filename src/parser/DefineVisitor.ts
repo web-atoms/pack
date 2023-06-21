@@ -40,6 +40,19 @@ function inspectRegister(e, dependencies: string[]): void {
         .map((el) => el.type === "Literal" ? el.value.toString() : undefined));
 }
 
+function inspectDynamicImport(e, dependencies: string[]) {
+    const id = e.callee;
+    if (!(id && id.type === "MemberExpression"
+        && id.property?.name === "import"
+        && id.object?.name === "_context")) {
+        return;
+    }
+    const a = e.arguments[0];
+    if (a.type === "Literal") {
+        dependencies.push(a.value.toString());
+    }
+}
+
 export default class DefineVisitor {
 
     public static parse(tree: Node | string): string[] {
@@ -51,6 +64,7 @@ export default class DefineVisitor {
             CallExpression(e) {
                 inspectDefine(e, result);
                 inspectRegister(e, result);
+                inspectDynamicImport(e, result);
             }
         });
         return result;

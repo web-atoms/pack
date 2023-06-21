@@ -48,7 +48,7 @@ function inspectDynamicImport(e, dependencies: string[]) {
         return;
     }
     const a = e.arguments[0];
-    if (a.type === "Literal") {
+    if (a?.type === "Literal") {
         dependencies.push(a.value.toString());
     }
 }

@@ -27,13 +27,10 @@
     "@web-atoms/unit-test": "^1.0.33",
     "acorn-walk": "^8.2.0",
     "concat-with-sourcemaps": "^1.1.0",
+    "source-map": "^0.7.4",
     "terser": "^5.16.1"
   },
-  "bundledDependencies": [
-    "@web-atoms/unit-test",
-    "concat-with-sourcemaps",
-    "terser"
-  ],
+  "bundledDependencies": true,
   "devDependencies": {
     "@types/node": "^10.17.17",
     "colors": "^1.4.0",

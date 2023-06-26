@@ -117,7 +117,7 @@ export default class FilePacker {
                             .join("/") );
                 }
             }
-            concat.add(r, iterator.content, iterator.map);
+            concat.add(r, iterator.content, iterator.map as any);
         }
 
         const code = `${concat.content}

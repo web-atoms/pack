@@ -28,7 +28,7 @@
     "acorn-walk": "^8.2.0",
     "concat-with-sourcemaps": "^1.1.0",
     "source-map": "^0.7.4",
-    "terser": "^5.16.1"
+    "terser": "^5.18.1"
   },
   "bundledDependencies": true,
   "devDependencies": {

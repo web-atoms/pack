@@ -1,4 +1,4 @@
-import DeclarationParser from "./DeclarationParser";
+import DeclarationParser, { IPackageInfo } from "./DeclarationParser";
 import FileApi, { IFileInfo } from "./FileApi";
 import IPackage from "./IPackage";
 import DefineVisitor from "./parser/DefineVisitor";
@@ -17,6 +17,11 @@ export interface IJSFile {
     map?: RawSourceMap;
 }
 
+interface ILessFile {
+    path: string;
+    module: IPackageInfo;
+}
+
 export interface IFileLastModifiedMap {
     [key: string]: number;
 }
@@ -32,6 +37,15 @@ export default class FilePacker {
     public done: { [key: string]: boolean } = {};
 
     public sourceNodes: IJSFile[] = [];
+
+    public cssNodes = {
+        global: [] as ILessFile[],
+        local: [] as ILessFile[],
+        globalHigh: [] as ILessFile[],
+        localHigh: [] as ILessFile[],
+        globalLow: [] as ILessFile[],
+        localLow: [] as ILessFile[]
+    };
 
     public appPath: string = "";
 
@@ -104,6 +118,9 @@ export default class FilePacker {
 
         const absRoot = moduleRoot;
 
+        // let us import style sheets first...
+        
+
         for (const iterator of this.sourceNodes) {
             const r = iterator.file ? this.fileApi.relative(absRoot, this.fileApi.resolve(iterator.file)) : undefined;
             const map = iterator.map;
@@ -161,7 +178,7 @@ export default class FilePacker {
         f = f.split("\\").join("/");
 
         if (f.endsWith(".js")) {
-            f = f.substr(0, f.length - 3);
+            f = f.substring(0, f.length - 3);
         }
 
         name = name.split("\\").join("/");
@@ -206,10 +223,36 @@ export default class FilePacker {
                     }));
 
             for (const iterator of ds) {
-                if (this.done[iterator.path]) {
+                const { path } = iterator;
+                if (this.done[path]) {
                     continue;
                 }
-                await this.writeFile(iterator.path, iterator.module.fullPath);
+                if (path.endsWith(".less")) {
+                    // inject css...
+                    if(path.endsWith(".global-low.less")) {
+                        this.cssNodes.globalLow.push(iterator);
+                        continue;
+                    }
+                    if(path.endsWith(".global-high.less")) {
+                        this.cssNodes.globalHigh.push(iterator);
+                        continue;
+                    }
+                    if(path.endsWith(".local.less")) {
+                        this.cssNodes.local.push(iterator);
+                        continue;
+                    }
+                    if(path.endsWith(".local-low.less")) {
+                        this.cssNodes.localLow.push(iterator);
+                        continue;
+                    }
+                    if(path.endsWith(".local-high.less")) {
+                        this.cssNodes.localHigh.push(iterator);
+                        continue;
+                    }
+                    this.cssNodes.global.push(iterator);
+                    continue;
+                }
+                await this.writeFile(path, iterator.module.fullPath);
             }
         }
 

@@ -208,7 +208,7 @@ export default class FilePacker {
 
         if (dependencies && dependencies.length > 0) {
 
-            const ignore = ["reflect_metadata", "global", "tslib"];
+            const ignore = ["reflect-metadata", "global", "tslib"];
 
             const ds = dependencies
                 .map((s) => s.startsWith(".") ? DeclarationParser.resolveRelativePath(s, name) : s)

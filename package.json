@@ -30,13 +30,21 @@
     "@web-atoms/unit-test": "^1.0.33",
     "acorn-walk": "^8.2.0",
     "concat-with-sourcemaps": "^1.1.0",
+    "console-log-colors": "^0.5.0",
+    "less": "^4.2.1",
     "source-map": "^0.7.4",
     "terser": "^5.18.1"
   },
   "bundledDependencies": true,
   "devDependencies": {
-    "@types/node": "^10.17.17",
-    "colors": "^1.4.0",
-    "fs": "0.0.1-security"
-  }
+    "@types/node": "^22.10.2",
+    "colors": "^1.4.0"
+  },
+  "bundleDependencies": [
+    "@web-atoms/unit-test",
+    "acorn-walk",
+    "concat-with-sourcemaps",
+    "source-map",
+    "terser"
+  ]
 }

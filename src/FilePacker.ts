@@ -9,6 +9,8 @@ import Concat from "concat-with-sourcemaps";
 import { RawSourceMap } from "source-map";
 import PackageVersion from "./PackageVersion";
 import { Stats } from "fs";
+import PackedLessFile from "./core/PackedLessFile";
+import PackedFile from "./core/PackedFile";
 
 export interface IJSFile {
     content: string;
@@ -39,12 +41,12 @@ export default class FilePacker {
     public sourceNodes: IJSFile[] = [];
 
     public cssNodes = {
-        global: [] as ILessFile[],
-        local: [] as ILessFile[],
-        globalHigh: [] as ILessFile[],
-        localHigh: [] as ILessFile[],
-        globalLow: [] as ILessFile[],
-        localLow: [] as ILessFile[]
+        global: void 0 as PackedLessFile,
+        local:  void 0 as PackedLessFile,
+        globalHigh:  void 0 as PackedLessFile,
+        localHigh:  void 0 as PackedLessFile,
+        globalLow:  void 0 as PackedLessFile,
+        localLow:  void 0 as PackedLessFile
     };
 
     public appPath: string = "";
@@ -119,6 +121,15 @@ export default class FilePacker {
         const absRoot = moduleRoot;
 
         // let us import style sheets first...
+
+        for (const key in this.cssNodes) {
+            if (Object.hasOwn(this.cssNodes, key)) {
+                const element = this.cssNodes[key] as PackedFile;
+                if (element && !element.isEmpty) {
+                    await element.postSave();
+                }
+            }
+        }
         
 
         for (const iterator of this.sourceNodes) {
@@ -228,28 +239,26 @@ export default class FilePacker {
                     continue;
                 }
                 if (path.endsWith(".less")) {
+                    let name = "global";
                     // inject css...
                     if(path.endsWith(".global-low.less")) {
-                        this.cssNodes.globalLow.push(iterator);
-                        continue;
+                        name = "globalLow";
                     }
                     if(path.endsWith(".global-high.less")) {
-                        this.cssNodes.globalHigh.push(iterator);
-                        continue;
+                        name = "globalHigh";
                     }
                     if(path.endsWith(".local.less")) {
-                        this.cssNodes.local.push(iterator);
-                        continue;
+                        name = "local";
                     }
                     if(path.endsWith(".local-low.less")) {
-                        this.cssNodes.localLow.push(iterator);
-                        continue;
+                        name = "localLow";
                     }
                     if(path.endsWith(".local-high.less")) {
-                        this.cssNodes.localHigh.push(iterator);
-                        continue;
+                        name = "localHigh";
                     }
-                    this.cssNodes.global.push(iterator);
+                    const less = (this.cssNodes[name] ??= new PackedLessFile(`${this.file}.pack.${name}.less`)) as PackedLessFile;
+                    await less.append(path);
+                    this.done[path] = true;
                     continue;
                 }
                 await this.writeFile(path, iterator.module.fullPath);

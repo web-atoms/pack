@@ -39,12 +39,5 @@
   "devDependencies": {
     "@types/node": "^22.10.2",
     "colors": "^1.4.0"
-  },
-  "bundleDependencies": [
-    "@web-atoms/unit-test",
-    "acorn-walk",
-    "concat-with-sourcemaps",
-    "source-map",
-    "terser"
-  ]
+  }
 }

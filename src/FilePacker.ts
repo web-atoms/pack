@@ -127,6 +127,8 @@ export default class FilePacker {
                 const element = this.cssNodes[key] as PackedFile;
                 if (element && !element.isEmpty) {
                     await element.postSave();
+
+                    this.sourceNodes.push({ content: `window.installStyleSheet("./${filePath.base}.pack.${key}.less.css");`});
                 }
             }
         }

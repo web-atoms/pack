@@ -128,7 +128,7 @@ export default class FilePacker {
                 if (element && !element.isEmpty) {
                     await element.postSave();
 
-                    this.sourceNodes.push({ content: `window.installStyleSheet( new URL("./${filePath.base}.pack.${key}.less.css", currentScript.src).toString());`});
+                    this.sourceNodes.push({ content: `window.installStyleSheet( new URL("./${filePath.base}.pack.${key}.less.css", document.currentScript.src).toString());`});
                 }
             }
         }

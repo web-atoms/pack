@@ -21,7 +21,7 @@ export default class PackedLessFile extends PackedFile {
         // make relative
         src = path.relative(this.dir, src).replaceAll("\\", "/");
 
-        return appendFile(this.path, `@import (less) "${src}.css";\n`);
+        return appendFile(this.path, `@import (less) "${src}";\n`);
     }
 
     async postSave() {

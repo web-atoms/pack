@@ -122,16 +122,20 @@ export default class FilePacker {
 
         // let us import style sheets first...
 
+        const wait = [];
+
         for (const key in this.cssNodes) {
             if (Object.hasOwn(this.cssNodes, key)) {
                 const element = this.cssNodes[key] as PackedFile;
                 if (element && !element.isEmpty) {
-                    await element.postSave();
+                    wait.push(element.postSave());
 
                     this.sourceNodes.push({ content: `window.installStyleSheet( new URL("./${filePath.base}.pack.${key}.less.css", document.currentScript.src).toString());`});
                 }
             }
         }
+
+        await Promise.all(wait);
         
 
         for (const iterator of this.sourceNodes) {

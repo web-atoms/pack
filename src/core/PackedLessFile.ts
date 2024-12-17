@@ -21,7 +21,7 @@ export default class PackedLessFile extends PackedFile {
         // make relative
         src = path.relative(this.dir, src).replaceAll("\\", "/");
 
-        return appendFile(this.path, `@import (less) "${src}";\n`);
+        return appendFile(this.path, `@import (less) "${src}.css";\n`);
     }
 
     async postSave() {
@@ -31,25 +31,20 @@ export default class PackedLessFile extends PackedFile {
 
         const dir = path.resolve(this.dir).replaceAll("\\", "/") + "/";
 
-        const mapFileName = this.name + ".css.map";
-
-        const mapFile = path.join(this.dir, mapFileName);
+        const mapFileName = this.path + ".css.map";
 
         await spawnPromise( process.execPath , [
             lessCPath,
             "--source-map=" + mapFileName,
-            "--source-map-basepath=" + dir + "/",
-            this.name,
-            this.name + ".css"
-        ], {
-            cwd: dir
-        })
+            this.path,
+            this.path + ".css"
+        ])
 
         // fix path...
-        const map = JSON.parse(await readFile(mapFile, "utf8"));
+        const map = JSON.parse(await readFile(mapFileName, "utf8"));
 
         map.sources = map.sources.map((x) => path.relative(dir, x).replaceAll("\\", "/"));
-        await writeFile(mapFile, JSON.stringify(map));
+        await writeFile(mapFileName, JSON.stringify(map));
     }
 
 }

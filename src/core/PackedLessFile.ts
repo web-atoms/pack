@@ -46,7 +46,7 @@ export default class PackedLessFile extends PackedFile {
         map.sources = map.sources.map((x: string) => path.isAbsolute(x)
             ? path.relative(dir, x).replaceAll("\\", "/")
             : x);
-        await writeFile(mapFileName, JSON.stringify(map, void 0, 2));
+        await writeFile(mapFileName, JSON.stringify(map));
     }
 
 }

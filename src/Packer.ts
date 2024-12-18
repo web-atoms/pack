@@ -77,7 +77,7 @@ export default class Packer {
             if (iterator.name.endsWith(".pack")) {
                 continue;
             }
-            const name = `${iterator.dir}/${iterator.name}`;
+            const name = `${iterator.dir}/${iterator.name}`.replaceAll("\\", "/");
             packFiles.push(name);
         }
 

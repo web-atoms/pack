@@ -78,22 +78,29 @@ export default class PackedLessFile extends PackedFile {
 
         const dir = path.resolve(this.dir).replaceAll("\\", "/") + "/";
 
-        const mapFileName = this.path + ".css.map";
+        const mapFileName = this.name + ".css.map";
+
+        console.log(this.dir);
 
         await spawnPromise( process.execPath , [
             lessCPath,
             "--source-map=" + mapFileName,
-            this.path.replaceAll("\\", "/"),
-            this.path.replaceAll("\\", "/") + ".css"
-        ])
+            this.name,
+            this.name + ".css",
+        ], {
+            cwd: this.dir
+        })
 
         // fix path...
-        const map = JSON.parse(await readFile(mapFileName, "utf8"));
+
+        const mapFilePath = path.join(this.dir, mapFileName);
+
+        const map = JSON.parse(await readFile(  mapFilePath, "utf8"));
 
         map.sources = map.sources.map((x: string) => path.isAbsolute(x)
             ? path.relative(dir, x).replaceAll("\\", "/")
             : x);
-        await writeFile(mapFileName, JSON.stringify(map));
+        await writeFile(mapFilePath, JSON.stringify(map));
     }
 
 }

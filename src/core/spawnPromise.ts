@@ -40,7 +40,11 @@ export const spawnPromise = (path, args?: string[], options?: SpawnOptionsWithou
             }
         }
         if (logCommand) {
-            console.log(`Spawn: ${path} ${JSON.stringify(args, undefined, 2)}`);
+            if (options.cwd) {
+                console.log(`Spawn: ${path} in ${options.cwd} ${JSON.stringify(args, undefined, 2)}`);
+            } else {
+                console.log(`Spawn: ${path} ${JSON.stringify(args, undefined, 2)}`);
+            }
             if (logData) {
                 console.log(all.join("\n"));
             }

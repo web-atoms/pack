@@ -85,6 +85,7 @@ export default class PackedLessFile extends PackedFile {
         await spawnPromise( process.execPath , [
             lessCPath,
             "--source-map=" + mapFileName,
+            "-ru=all",
             this.name,
             this.name + ".css",
         ], {

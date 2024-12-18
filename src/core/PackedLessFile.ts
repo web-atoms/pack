@@ -56,7 +56,6 @@ export default class PackedLessFile extends PackedFile {
                         const mapFileSource = sources[0];
                         const mapFileDir = path.dirname(fullMapPath);
                         const sourceFile = path.join(mapFileDir, mapFileSource);
-                        console.log(sourceFile);
                         if (existsSync(sourceFile)) {
                             return sourceFile;
                         }

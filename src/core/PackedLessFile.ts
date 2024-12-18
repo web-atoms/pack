@@ -55,8 +55,12 @@ export default class PackedLessFile extends PackedFile {
                     if (sources?.length === 1) {
                         const mapFileSource = sources[0];
                         const mapFileDir = path.dirname(fullMapPath);
-                        const sourceFile = path.join(mapFileDir, mapFileSource);
+                        let sourceFile = path.join(mapFileDir, mapFileSource);
                         if (existsSync(sourceFile)) {
+
+                            // let us make it relative to current file's dir
+                            sourceFile = path.relative(this.dir, sourceFile);
+
                             return sourceFile.replaceAll("\\", "/");
                         }
                     }

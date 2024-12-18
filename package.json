@@ -1,6 +1,6 @@
 {
   "name": "@web-atoms/pack",
-  "version": "1.0.108",
+  "version": "1.0.109",
   "description": "Web Atoms Pack script to combine multple Web Atoms Modules",
   "main": "index.js",
   "scripts": {

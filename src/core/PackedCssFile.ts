@@ -64,6 +64,7 @@ export default class PackedCssFile extends PackedFile {
             postCssPath,
             this.name + ".css",
             "-o", this.name,
+            "--config", process.cwd(),
             "--map"
         ], {
             cwd: this.dir

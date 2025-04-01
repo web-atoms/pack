@@ -11,6 +11,7 @@ import PackageVersion from "./PackageVersion";
 import { Stats } from "fs";
 import PackedLessFile from "./core/PackedLessFile";
 import PackedFile from "./core/PackedFile";
+import PackedCssFile from "./core/PackedCssFile";
 
 export interface IJSFile {
     content: string;
@@ -40,13 +41,22 @@ export default class FilePacker {
 
     public sourceNodes: IJSFile[] = [];
 
-    public cssNodes = {
+    public lessNodes = {
         global: void 0 as PackedLessFile,
         local:  void 0 as PackedLessFile,
         globalHigh:  void 0 as PackedLessFile,
         localHigh:  void 0 as PackedLessFile,
         globalLow:  void 0 as PackedLessFile,
         localLow:  void 0 as PackedLessFile
+    };
+
+    public cssNodes = {
+        global: void 0 as PackedCssFile,
+        local:  void 0 as PackedCssFile,
+        globalHigh:  void 0 as PackedCssFile,
+        localHigh:  void 0 as PackedCssFile,
+        globalLow:  void 0 as PackedCssFile,
+        localLow:  void 0 as PackedCssFile
     };
 
     public appPath: string = "";
@@ -124,13 +134,24 @@ export default class FilePacker {
 
         const wait = [];
 
+        for (const key in this.lessNodes) {
+            if (Object.hasOwn(this.lessNodes, key)) {
+                const element = this.lessNodes[key] as PackedFile;
+                if (element && !element.isEmpty) {
+                    wait.push(element.postSave());
+
+                    this.sourceNodes.push({ content: `window.installStyleSheet( new URL("./${filePath.base}.pack.${key}.less.css", document.currentScript.src).toString());`});
+                }
+            }
+        }
+
         for (const key in this.cssNodes) {
             if (Object.hasOwn(this.cssNodes, key)) {
                 const element = this.cssNodes[key] as PackedFile;
                 if (element && !element.isEmpty) {
                     wait.push(element.postSave());
 
-                    this.sourceNodes.push({ content: `window.installStyleSheet( new URL("./${filePath.base}.pack.${key}.less.css", document.currentScript.src).toString());`});
+                    this.sourceNodes.push({ content: `window.installStyleSheet( new URL("./${filePath.base}.pack.${key}.css", document.currentScript.src).toString());`});
                 }
             }
         }
@@ -262,8 +283,31 @@ export default class FilePacker {
                     if(path.endsWith(".local-high.less")) {
                         name = "localHigh";
                     }
-                    const less = (this.cssNodes[name] ??= new PackedLessFile(`${this.file}.pack.${name}.less`)) as PackedLessFile;
+                    const less = (this.lessNodes[name] ??= new PackedLessFile(`${this.file}.pack.${name}.less`)) as PackedLessFile;
                     await less.append(path);
+                    this.done[path] = true;
+                    continue;
+                }
+                if (path.endsWith(".css")) {
+                    let name = "global";
+                    // inject css...
+                    if(path.endsWith(".global-low.css")) {
+                        name = "globalLow";
+                    }
+                    if(path.endsWith(".global-high.css")) {
+                        name = "globalHigh";
+                    }
+                    if(path.endsWith(".local.css")) {
+                        name = "local";
+                    }
+                    if(path.endsWith(".local-low.css")) {
+                        name = "localLow";
+                    }
+                    if(path.endsWith(".local-high.css")) {
+                        name = "localHigh";
+                    }
+                    const css = (this.cssNodes[name] ??= new PackedCssFile(`${this.file}.pack.${name}.css`)) as PackedCssFile;
+                    await css.append(path);
                     this.done[path] = true;
                     continue;
                 }
@@ -294,7 +338,7 @@ export default class FilePacker {
         while (true && lines.length) {
             const last = lines.pop();
             if (last && last.startsWith(srcMap)) {
-                mapPath = last.substr(srcMap.length);
+                mapPath = last.substring(srcMap.length);
                 break;
             }
         }

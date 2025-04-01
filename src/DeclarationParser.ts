@@ -37,9 +37,9 @@ export default class DeclarationParser {
         for (const line of lines) {
             if (/^import\s/.test(line)) {
                 let i = line.lastIndexOf("\"");
-                let s = line.substr(0, i);
+                let s = line.substring(0, i);
                 i = s.lastIndexOf("\"");
-                s = s.substr(i + 1);
+                s = s.substring(i + 1);
 
                 dependencies.push(s);
             }

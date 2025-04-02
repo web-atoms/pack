@@ -36,6 +36,7 @@
     "postcss-cli": "^11.0.1",
     "postcss-import": "^16.1.0",
     "postcss-import-ext-glob": "^2.1.1",
+    "postcss-import-styled-js": "^1.0.21",
     "postcss-nested": "^7.0.2",
     "postcss-preset-env": "^10.1.5",
     "source-map": "^0.7.4",
@@ -45,20 +46,5 @@
   "devDependencies": {
     "@types/node": "^22.10.2",
     "colors": "^1.4.0"
-  },
-  "bundleDependencies": [
-    "@web-atoms/unit-test",
-    "acorn-walk",
-    "concat-with-sourcemaps",
-    "console-log-colors",
-    "less",
-    "postcss",
-    "postcss-cli",
-    "postcss-import",
-    "postcss-import-ext-glob",
-    "postcss-nested",
-    "postcss-preset-env",
-    "source-map",
-    "terser"
-  ]
+  }
 }

@@ -1,6 +1,6 @@
 import { parse, Node } from "acorn";
 import { simple } from "acorn-walk";
-import PackageVersion from "../PackageVersion";
+import PackageVersion from "../PackageVersion.js";
 
 function inspectDefine(e, dependencies: string[]): void {
     const id = e.callee;

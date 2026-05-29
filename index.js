@@ -1,4 +1,4 @@
-var Packer = require("./dist/Packer").default;
+import Packer from "./dist/Packer.js";
 
 var packer = new Packer();
 packer.run(process.argv)

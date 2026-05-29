@@ -3,6 +3,7 @@
   "version": "1.0.112",
   "description": "Web Atoms Pack script to combine multple Web Atoms Modules",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 0",
@@ -27,7 +28,7 @@
   },
   "homepage": "https://github.com/web-atoms/pack#readme",
   "dependencies": {
-    "@web-atoms/unit-test": "^1.0.33",
+    "@web-atoms/unit-test": "^2.0.5",
     "acorn-walk": "^8.2.0",
     "concat-with-sourcemaps": "^1.1.0",
     "console-log-colors": "^0.5.0",

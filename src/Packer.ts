@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, readSync } from "fs";
 import { format } from "path";
-import FileApi from "./FileApi";
-import FilePacker from "./FilePacker";
-import IPackage from "./IPackage";
-import PackageVersion from "./PackageVersion";
+import FileApi from "./FileApi.js";
+import FilePacker from "./FilePacker.js";
+import IPackage from "./IPackage.js";
+import PackageVersion from "./PackageVersion.js";
 
 const fileApi = new FileApi(".");
 

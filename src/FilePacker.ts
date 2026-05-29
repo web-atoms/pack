@@ -1,17 +1,17 @@
-import DeclarationParser, { IPackageInfo } from "./DeclarationParser";
-import FileApi, { IFileInfo } from "./FileApi";
-import IPackage from "./IPackage";
-import DefineVisitor from "./parser/DefineVisitor";
+import DeclarationParser, { IPackageInfo } from "./DeclarationParser.js";
+import FileApi, { IFileInfo } from "./FileApi.js";
+import IPackage from "./IPackage.js";
+import DefineVisitor from "./parser/DefineVisitor.js";
 
 import * as Terser from "terser";
 
 import Concat from "concat-with-sourcemaps";
 import { RawSourceMap } from "source-map";
-import PackageVersion from "./PackageVersion";
+import PackageVersion from "./PackageVersion.js";
 import { Stats } from "fs";
-import PackedLessFile from "./core/PackedLessFile";
-import PackedFile from "./core/PackedFile";
-import PackedCssFile from "./core/PackedCssFile";
+import PackedLessFile from "./core/PackedLessFile.js";
+import PackedFile from "./core/PackedFile.js";
+import PackedCssFile from "./core/PackedCssFile.js";
 
 export interface IJSFile {
     content: string;
@@ -122,7 +122,7 @@ export default class FilePacker {
 
         // now lets do the magic !!
 
-        const concat = new Concat(true, outputFile, "\n");
+        const concat = new (Concat as any)(true, outputFile, "\n");
 
         // concat.add("none.js", "// web-atoms-packed\n");
 
@@ -315,10 +315,10 @@ export default class FilePacker {
             }
         }
 
+        this.content.push(await this.jsFile(f + ".js", fileContent));
         this.content.push({ content: `
     AmdLoader.instance.setup("${name}");
 `});
-        this.content.push(await this.jsFile(f + ".js", fileContent));
     }
 
     private async jsFile(file, content?: string): Promise<IJSFile> {

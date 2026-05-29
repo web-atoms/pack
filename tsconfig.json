@@ -1,13 +1,16 @@
 {
     "compilerOptions": {
         "target": "ES2022",
-        "module":"commonjs",
+        "module":"nodenext",
         "sourceMap": true,
         "declaration": true,
         "declarationMap": true,
-        "moduleResolution": "node",
+        "moduleResolution": "nodenext",
         "outDir": "dist",
-        "experimentalDecorators": true
+        "rootDir": "./src",
+        "strict": false,
+        "experimentalDecorators": true,
+        "types": ["node"]
     },
     "include": [
         "src/**/*"

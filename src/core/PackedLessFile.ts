@@ -1,6 +1,6 @@
 import { appendFile, readFile, writeFile } from "fs/promises";
-import PackedFile from "./PackedFile";
-import { spawnPromise } from "./spawnPromise";
+import PackedFile from "./PackedFile.js";
+import { spawnPromise } from "./spawnPromise.js";
 import path = require("path");
 import { exists, existsSync, unlinkSync } from "fs";
 

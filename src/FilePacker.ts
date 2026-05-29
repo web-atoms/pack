@@ -315,10 +315,10 @@ export default class FilePacker {
             }
         }
 
-        this.content.push(await this.jsFile(f + ".js", fileContent));
         this.content.push({ content: `
     AmdLoader.instance.setup("${name}");
 `});
+        this.content.push(await this.jsFile(f + ".js", fileContent));
     }
 
     private async jsFile(file, content?: string): Promise<IJSFile> {
